@@ -20,13 +20,16 @@ public class GameManager : MonoBehaviour
     public GameState currentGameState = GameState.PAUSE_MENU;
     public static GameManager instance;
     
+    [Header("UI References")]
     public Canvas inGameCanvas;
     public Canvas pauseMenuCanvas;
     public Canvas settingsCanvas;
     public TMP_Text qualityText;
     public TMP_Text timerText;
+    
+    public GameObject[] hearts;
     private float currentTime = 0;
-    private int lives = 3;
+    private int lives;
     
     private void Awake()
     {
@@ -43,6 +46,8 @@ public class GameManager : MonoBehaviour
     {
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n"+QualitySettings.names[QualitySettings.GetQualityLevel()]);
+        lives = hearts.Length;
+        UpdateHeartsUI();
     }
 
     // Update is called once per frame
@@ -120,8 +125,28 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
     }
 
-    public void AddLives(int live)
+    public void AddLives(int liveChange)
     {
-        lives += live;
+        lives += liveChange;
+        lives = Mathf.Clamp(lives, 0, hearts.Length);
+
+        if (lives <= 0)
+        {
+            Debug.Log("Game Over!");
+            OnRestartClicked();
+        }
+
+        UpdateHeartsUI();
+    }
+    
+    private void UpdateHeartsUI()
+    {
+        for (int i = 0; i < hearts.Length; i++)
+        {
+            if (i < lives)
+                hearts[i].SetActive(true);
+            else
+                hearts[i].SetActive(false);
+        }
     }
 }

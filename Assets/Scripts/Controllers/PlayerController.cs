@@ -96,9 +96,9 @@ public class PlayerController : MonoBehaviour
         //     }
         // }
 
-        if (col.CompareTag("LevelFall"))
+        if (col.CompareTag("Killzone"))
         {
-            // GameManager.instance.AddLives(-1);
+            GameManager.instance.AddLives(-1);
             transform.position = startPosition;
         }
     }
