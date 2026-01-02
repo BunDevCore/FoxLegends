@@ -9,7 +9,7 @@ public enum GameState
 {
     [InspectorName("Gameplay")] GAME,
     [InspectorName("Pause")] PAUSE_MENU,
-    [InspectorName("Options")] OPTIONS,
+    [InspectorName("Options")] SETTINGS,
 
     [InspectorName("Level completed (either successfully or failed)")]
     LEVEL_COMPLETED
@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     public TMP_Text qualityText;
     public TMP_Text timerText;
     private float currentTime = 0;
+    private int lives = 3;
     
     private void Awake()
     {
@@ -51,10 +52,8 @@ public class GameManager : MonoBehaviour
         {
             if (currentGameState == GameState.PAUSE_MENU)
                 InGame();
-            else if (currentGameState == GameState.GAME)
+            else if (currentGameState == GameState.GAME || currentGameState == GameState.SETTINGS)
                 PauseMenu();
-            else if (currentGameState == GameState.OPTIONS) 
-                SetGameState(GameState.PAUSE_MENU);
         }
 
         tickTime();
@@ -75,7 +74,7 @@ public class GameManager : MonoBehaviour
     public void OnSettingsClicked()
     {
         settingsCanvas.enabled = true;
-        SetGameState(GameState.OPTIONS);
+        SetGameState(GameState.SETTINGS);
     }
     
     public void OnSettingsBackClicked()
@@ -106,6 +105,7 @@ public class GameManager : MonoBehaviour
         currentGameState = newGameState;
         inGameCanvas.enabled = currentGameState == GameState.GAME;
         pauseMenuCanvas.enabled = currentGameState == GameState.PAUSE_MENU;
+        settingsCanvas.enabled = currentGameState == GameState.SETTINGS;
     }
 
     public void PauseMenu()
@@ -118,5 +118,10 @@ public class GameManager : MonoBehaviour
     {
         SetGameState(GameState.GAME);
         Time.timeScale = 1;
+    }
+
+    public void AddLives(int live)
+    {
+        lives += live;
     }
 }
