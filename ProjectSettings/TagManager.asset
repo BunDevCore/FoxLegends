@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 3
+  tags:
+  - LevelExit
+  - LevelFall
+  - Bonus
+  - Enemy
+  - Key
+  - Heart
+  - MovingPlatform
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - Ground
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 1184303729
+    locked: 0
+  - name: Props
+    uniqueID: 4174808263
+    locked: 0
+  - name: Tilemap
+    uniqueID: 3350790045
+    locked: 0
+  - name: Platforms
+    uniqueID: 1792945671
+    locked: 0
+  - name: Player and Enemies
+    uniqueID: 1092599503
+    locked: 0
+  - name: Foreground
+    uniqueID: 2928762501
+    locked: 0
+  m_RenderingLayers:
+  - Default
