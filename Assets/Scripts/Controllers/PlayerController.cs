@@ -96,10 +96,11 @@ public class PlayerController : MonoBehaviour
         //     }
         // }
 
-        if (col.CompareTag("LevelFall"))
+        if (col.CompareTag("Killzone"))
         {
-            // GameManager.instance.AddLives(-1);
-            transform.position = startPosition;
+            GameManager.instance.AddLives(-1);
+            transform.position = GameManager.instance.currentSpawnPoint;
+            rigidBody.linearVelocity = Vector2.zero;
         }
     }
 }
