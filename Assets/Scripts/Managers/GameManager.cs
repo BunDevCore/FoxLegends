@@ -27,6 +27,9 @@ public class GameManager : MonoBehaviour
     public TMP_Text qualityText;
     public TMP_Text timerText;
     
+    [Header("Checkpoint System")]
+    public Vector3 currentSpawnPoint;
+    
     public GameObject[] hearts;
     private float currentTime = 0;
     private int lives;
@@ -44,6 +47,9 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null) 
+            currentSpawnPoint = player.transform.position;
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n"+QualitySettings.names[QualitySettings.GetQualityLevel()]);
         lives = hearts.Length;
@@ -123,6 +129,11 @@ public class GameManager : MonoBehaviour
     {
         SetGameState(GameState.GAME);
         Time.timeScale = 1;
+    }
+    
+    public void UpdateSpawnPoint(Vector3 newPosition)
+    {
+        currentSpawnPoint = newPosition;
     }
 
     public void AddLives(int liveChange)
