@@ -32,16 +32,13 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKey(KeyCode.D)) moveInput = 1f;
         if (Input.GetKey(KeyCode.A)) moveInput = -1f;
 
-        isRunning = moveInput != 0;
-
         if (moveInput > 0 && !isFacingRight) Flip();
         else if (moveInput < 0 && isFacingRight) Flip();
-
-        // Skok
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Jump();
-        }
+        
+        isRunning = moveInput != 0;
+        
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
+            rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
 
         rigidBody.linearVelocity = new Vector2(moveInput * moveSpeed, rigidBody.linearVelocity.y);
 
@@ -69,12 +66,6 @@ public class PlayerController : MonoBehaviour
         Vector3 theScale = transform.localScale;
         theScale.x *= -1;
         transform.localScale = theScale;
-    }
-
-    void Jump()
-    {
-        if (IsGrounded())
-            rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
     }
 
     private void OnTriggerExit2D(Collider2D other)

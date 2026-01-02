@@ -30,7 +30,7 @@ namespace DefaultNamespace
             // Sprawdź, czy to Gracz wszedł w strefę
             if (other.CompareTag("Player") && !enter)
             {
-                mCameraFollow.setPlace(focusPoint);
+                mCameraFollow.SetPlace(focusPoint);
             }
         }
 
@@ -39,7 +39,7 @@ namespace DefaultNamespace
             // Kiedy gracz wychodzi, kamera wraca do śledzenia gracza
             if (other.CompareTag("Player") && !exit)
             {
-                mCameraFollow.resetPlace();
+                mCameraFollow.ResetPlace();
             }
         }
     }

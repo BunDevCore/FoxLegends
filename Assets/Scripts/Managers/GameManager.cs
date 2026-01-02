@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour
     public Canvas inGameCanvas;
     public Canvas pauseMenuCanvas;
     public Canvas settingsCanvas;
+    public TMP_Text qualityText;
+    public TMP_Text timerText;
+    private float currentTime = 0;
     
     private void Awake()
     {
@@ -38,6 +41,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         settingsCanvas.enabled = false;
+        qualityText.SetText("Quality:\n"+QualitySettings.names[QualitySettings.GetQualityLevel()]);
     }
 
     // Update is called once per frame
@@ -49,7 +53,20 @@ public class GameManager : MonoBehaviour
                 InGame();
             else if (currentGameState == GameState.GAME)
                 PauseMenu();
+            else if (currentGameState == GameState.OPTIONS) 
+                SetGameState(GameState.PAUSE_MENU);
         }
+
+        tickTime();
+    }
+
+    void tickTime()
+    {
+        currentTime += Time.deltaTime;
+        float minutes = Mathf.FloorToInt(currentTime / 60);
+        float seconds = Mathf.FloorToInt(currentTime % 60);
+        float milliseconds = (currentTime * 1000) % 1000;
+        timerText.text = string.Format("{0:00}:{1:00}.{2:000}", minutes, seconds, milliseconds);
     }
     
     public void OnResumeClicked() => InGame();
@@ -58,27 +75,25 @@ public class GameManager : MonoBehaviour
     public void OnSettingsClicked()
     {
         settingsCanvas.enabled = true;
-        Time.timeScale = 0;
         SetGameState(GameState.OPTIONS);
     }
     
     public void OnSettingsBackClicked()
     {
         settingsCanvas.enabled = false;
-        Time.timeScale = 1;
         SetGameState(GameState.PAUSE_MENU);
     }
     
     public void OnQualityUpClicked()
     {
         QualitySettings.IncreaseLevel();
-        // qualityText.SetText("Quality: "+QualitySettings.names[QualitySettings.GetQualityLevel()]);
+        qualityText.SetText("Quality:\n"+QualitySettings.names[QualitySettings.GetQualityLevel()]);
     }
 
     public void OnQualityDownClicked()
     {
         QualitySettings.DecreaseLevel();
-        // qualityText.SetText("Quality: "+QualitySettings.names[QualitySettings.GetQualityLevel()]);
+        qualityText.SetText("Quality:\n"+QualitySettings.names[QualitySettings.GetQualityLevel()]);
     }
 
     public void SetVolume(float vol)
@@ -96,10 +111,12 @@ public class GameManager : MonoBehaviour
     public void PauseMenu()
     {
         SetGameState(GameState.PAUSE_MENU);
+        Time.timeScale = 0;
     }
 
     public void InGame()
     {
         SetGameState(GameState.GAME);
+        Time.timeScale = 1;
     }
 }

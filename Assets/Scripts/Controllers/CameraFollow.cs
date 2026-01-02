@@ -11,15 +11,18 @@ namespace UnityStandardAssets._2D
         public Vector2 maxXAndY;
         public Vector2 minXAndY;
 
-        // Flaga, czy limity są aktywne
-        public bool enableLimits = true;
+        [Header("Enable maxmin for x and y")] public bool enableLimits = true;
+        [Header("Look Ahead Settings")] public float lookAheadFactor = 3f;
 
         private Transform mPlayer;
+        private Rigidbody2D mPlayerBody;
         private Transform mCurrentTarget;
 
         private void Awake()
         {
-            mPlayer = GameObject.FindGameObjectWithTag("Player").transform;
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            mPlayer = playerObj.transform;
+            mPlayerBody = playerObj.GetComponent<Rigidbody2D>();
         }
 
         private void Start()
@@ -29,13 +32,13 @@ namespace UnityStandardAssets._2D
             enableLimits = true;
         }
 
-        public void setPlace(Transform place)
+        public void SetPlace(Transform place)
         {
             mCurrentTarget = place;
             enableLimits = false;
         }
 
-        public void resetPlace()
+        public void ResetPlace()
         {
             mCurrentTarget = mPlayer;
             enableLimits = true;
@@ -62,13 +65,20 @@ namespace UnityStandardAssets._2D
             float targetX = targetTransform.position.x;
             float targetY = targetTransform.position.y;
 
+            bool isFollowingPlayer = (targetTransform == mPlayer);
+
+            if (isFollowingPlayer && Mathf.Abs(mPlayerBody.linearVelocity.x) > 0.1f)
+            {
+                float direction = Mathf.Sign(targetTransform.localScale.x);
+                targetX += direction * lookAheadFactor;
+            }
+
             if (enableLimits)
             {
                 targetX = Mathf.Clamp(targetX, minXAndY.x, maxXAndY.x);
                 targetY = Mathf.Clamp(targetY, minXAndY.y, maxXAndY.y);
             }
 
-            bool isFollowingPlayer = (targetTransform == mPlayer);
 
             float currentX = transform.position.x;
             float currentY = transform.position.y;
@@ -77,10 +87,10 @@ namespace UnityStandardAssets._2D
 
             if (isFollowingPlayer || Mathf.Abs(currentX - targetX) > xMargin)
                 finalX = Mathf.Lerp(currentX, targetX, xSmooth * Time.deltaTime);
-            
+
             if (isFollowingPlayer || Mathf.Abs(currentY - targetY) > yMargin)
                 finalY = Mathf.Lerp(currentY, targetY, ySmooth * Time.deltaTime);
-            
+
             transform.position = new Vector3(finalX, finalY, transform.position.z);
         }
     }

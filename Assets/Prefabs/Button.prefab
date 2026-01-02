@@ -99,8 +99,8 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.819433, g: 0.2971698, b: 1, a: 1}
-    m_PressedColor: {r: 1, g: 1, b: 0.6431373, a: 1}
+    m_HighlightedColor: {r: 0.76557493, g: 0.8594926, b: 0.8679245, a: 1}
+    m_PressedColor: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
@@ -122,8 +122,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
-        m_MethodName: OnLevel1ButtonPressed
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: OnResumeClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -198,10 +198,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Level 1
+  m_text: 'Resume
+
+'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3dd63ed4e1509ef4a921c64a758e8293, type: 2}
-  m_sharedMaterial: {fileID: -1742289100058107491, guid: 3dd63ed4e1509ef4a921c64a758e8293, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 89589db2941610c48be0682345e47bf9, type: 2}
+  m_sharedMaterial: {fileID: -4549915338130747781, guid: 89589db2941610c48be0682345e47bf9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
