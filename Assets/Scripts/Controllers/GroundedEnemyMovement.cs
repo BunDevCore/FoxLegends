@@ -12,15 +12,11 @@ public class GroundedEnemyMovement : MonoBehaviour
     
     private const float RayLength = 0.2f;
     private Animator animator;
-    private bool isRunning = false;
     private bool isFacingRight = true;
-    private Vector2 startPosition;
-    private HashSet<GameObject> ignoredCollisions = new();
     private bool shouldMove = true;
 
     void Awake()
     {
-        startPosition = transform.position;
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         rb.linearVelocity = new Vector2(moveSpeed, 0);
@@ -35,14 +31,6 @@ public class GroundedEnemyMovement : MonoBehaviour
         }
         var predictedMovement = rb.linearVelocity * (Time.deltaTime * 1.1f);
         var newPosition = new Vector2(transform.position.x, transform.position.y) + predictedMovement;
-        if (IsBlockedForward(newPosition))
-        {
-            Debug.Log("forward gówno");
-        }
-        if (!IsGrounded(newPosition))
-        {
-            Debug.Log("nie grounded gówno");
-        }
         if (!IsGrounded(newPosition) || IsBlockedForward(newPosition))
         {
             Flip();
@@ -88,11 +76,5 @@ public class GroundedEnemyMovement : MonoBehaviour
         if (((1 << other.gameObject.layer) & groundLayer.value) != 0) return;
         Flip();
         // rb.linearVelocityX *= -1;
-        ignoredCollisions.Add(other.gameObject);
-    }
-
-    private void OnCollisionExit2D(Collision2D other)
-    {
-        ignoredCollisions.Remove(other.gameObject);
     }
 }
