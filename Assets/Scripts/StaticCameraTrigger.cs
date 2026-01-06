@@ -5,7 +5,8 @@ namespace DefaultNamespace
 {
     public class CameraTrigger : MonoBehaviour
     {
-        [Tooltip("Przeciągnij tutaj obiekt (Transform), na który kamera ma się przełączyć.")]
+        [Header("Zmień kolizję na teren na który ma to działać, potem")]
+        [Header("Edytuj obiekt (Transform), na który kamera ma wskazywać.\nJeśli nie ma to stwórz, najlepiej jakby był jako dziecko tego elementu")]
         public Transform focusPoint;
 
         [Tooltip("Czy ma triggerować na wejście z boxa")]
