@@ -177,11 +177,11 @@ public class GameManager : MonoBehaviour
             yield return null;
         }
 
-        // mCameraFollow.enableSmooting = false;
+        mCameraFollow.enableSmoothing = false;
         playerTransform.position = currentSpawnPoint;
         playerRb.linearVelocity = Vector2.zero;
         yield return new WaitForSeconds(0.3f);
-        // mCameraFollow.enableSmooting = true;
+        mCameraFollow.enableSmoothing = true;
         
         while (alpha > 0)
         {
