@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using UnityStandardAssets._2D;
 
 public enum GameState
 {
@@ -37,6 +37,12 @@ public class GameManager : MonoBehaviour
     [Header("Cursor Manager")]
     public CursorManager cursorManager;
 
+    
+    [Header("Fading")]
+    public Image blackoutImage;
+    public float fadeSpeed = 2f;
+    private CameraFollow mCameraFollow;
+    
     private void Awake()
     {
         if (instance == null)
@@ -53,6 +59,7 @@ public class GameManager : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
             currentSpawnPoint = player.transform.position;
+        mCameraFollow = Camera.main.GetComponent<CameraFollow>();
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
         lives = hearts.Length;
@@ -171,6 +178,30 @@ public class GameManager : MonoBehaviour
                 hearts[i].SetActive(true);
             else
                 hearts[i].SetActive(false);
+        }
+    }
+    
+    public IEnumerator RespawnSequence(Transform playerTransform, Rigidbody2D playerRb)
+    {
+        float alpha = 0;
+        while (alpha < 1)
+        {
+            alpha += Time.deltaTime * fadeSpeed;
+            blackoutImage.color = new Color(0, 0, 0, alpha);
+            yield return null;
+        }
+
+        mCameraFollow.enableSmoothing = false;
+        playerTransform.position = currentSpawnPoint;
+        playerRb.linearVelocity = Vector2.zero;
+        yield return new WaitForSeconds(0.3f);
+        mCameraFollow.enableSmoothing = true;
+        
+        while (alpha > 0)
+        {
+            alpha -= Time.deltaTime * fadeSpeed;
+            blackoutImage.color = new Color(0, 0, 0, alpha);
+            yield return null;
         }
     }
 }
