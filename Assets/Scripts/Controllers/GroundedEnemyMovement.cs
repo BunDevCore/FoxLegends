@@ -25,11 +25,19 @@ public class GroundedEnemyMovement : MonoBehaviour
         rb.linearVelocity = new Vector2(moveSpeed, 0);
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        var predictedMovement = rb.linearVelocity * Time.deltaTime;
+        var predictedMovement = rb.linearVelocity * (Time.deltaTime * 1.1f);
         var newPosition = new Vector2(transform.position.x, transform.position.y) + predictedMovement;
-        if (!IsGrounded(newPosition) || IsBlockedForward())
+        if (IsBlockedForward(newPosition))
+        {
+            Debug.Log("forward gówno");
+        }
+        if (!IsGrounded(newPosition))
+        {
+            Debug.Log("nie grounded gówno");
+        }
+        if (!IsGrounded(newPosition) || IsBlockedForward(newPosition))
         {
             Flip();
         }
