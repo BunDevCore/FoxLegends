@@ -16,6 +16,7 @@ public class GroundedEnemyMovement : MonoBehaviour
     private bool isFacingRight = true;
     private Vector2 startPosition;
     private HashSet<GameObject> ignoredCollisions = new();
+    private bool shouldMove = true;
 
     void Awake()
     {
@@ -27,6 +28,11 @@ public class GroundedEnemyMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!shouldMove)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
         var predictedMovement = rb.linearVelocity * (Time.deltaTime * 1.1f);
         var newPosition = new Vector2(transform.position.x, transform.position.y) + predictedMovement;
         if (IsBlockedForward(newPosition))
@@ -69,9 +75,16 @@ public class GroundedEnemyMovement : MonoBehaviour
             groundLayer.value
         );
     }
+    
+    void Death()
+    {
+        Debug.Log($"{gameObject.name} is kil");
+        shouldMove = false;
+    }
 
     void OnCollisionEnter2D(Collision2D other)
     {
+        if (!shouldMove) return;
         if (((1 << other.gameObject.layer) & groundLayer.value) != 0) return;
         Flip();
         // rb.linearVelocityX *= -1;
