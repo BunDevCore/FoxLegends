@@ -139,7 +139,7 @@ public class GameManager : MonoBehaviour
 
     public void InGame()
     {
-        cursorManager.HideCursor();
+        cursorManager.HideAndResetCursor();
         SetGameState(GameState.GAME);
         Time.timeScale = 1;
     }
