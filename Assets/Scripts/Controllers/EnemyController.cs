@@ -27,6 +27,7 @@ public class EnemyController : MonoBehaviour
 
     IEnumerator KillOnAnimationEnd()
     {
+        rb.simulated = false;
         yield return new WaitForSeconds(0.5f);
         gameObject.SetActive(false);
     }
@@ -38,8 +39,13 @@ public class EnemyController : MonoBehaviour
             if (transform.position.y < other.gameObject.transform.position.y)
             {
                 gameObject.SendMessage("Death");
+                other.gameObject.SendMessage("KilledEnemy");
                 //animator.SetBool("isDead", true);
                 StartCoroutine(KillOnAnimationEnd());
+            }
+            else
+            {
+                other.gameObject.SendMessage("PlayerDeath");
             }
         }
     }

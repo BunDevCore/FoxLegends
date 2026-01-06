@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class PlayerController : MonoBehaviour
     private float moveSpeed = 0.1f;
 
     [SerializeField] private float jumpForce = 6.0f;
+    [SerializeField] private float maxBounceVelocity = 3.0f;
+    [SerializeField] private float enemyBounceVelocity = 2.0f;
     [Space(10)] private Rigidbody2D rigidBody;
     [SerializeField] private LayerMask groundLayer;
     private const float rayLength = 0.2f;
@@ -109,8 +112,21 @@ public class PlayerController : MonoBehaviour
 
         if (col.CompareTag("Killzone"))
         {
-            GameManager.instance.AddLives(-1);
-            StartCoroutine(GameManager.instance.RespawnSequence(transform, rigidBody));
+            PlayerDeath();
         }
+    }
+
+    private void KilledEnemy()
+    {
+        rigidBody.linearVelocityY += enemyBounceVelocity;
+        if (rigidBody.linearVelocityY > maxBounceVelocity) rigidBody.linearVelocityY = maxBounceVelocity;
+        // rigidBody.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+        Debug.Log(rigidBody.linearVelocityY);
+    }
+
+    private void PlayerDeath()
+    {
+        GameManager.instance.AddLives(-1);
+        StartCoroutine(GameManager.instance.RespawnSequence(transform, rigidBody));
     }
 }
