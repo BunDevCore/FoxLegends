@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviour
     private bool isRunning = false;
     private bool isFacingRight = true;
     private Vector2 startPosition;
+    
+    public bool enableMovement = true;
 
     void Awake()
     {
@@ -29,15 +31,15 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         float moveInput = 0f;
-        if (Input.GetKey(KeyCode.D)) moveInput = 1f;
-        if (Input.GetKey(KeyCode.A)) moveInput = -1f;
+        if (Input.GetKey(KeyCode.D) && enableMovement) moveInput = 1f;
+        if (Input.GetKey(KeyCode.A) && enableMovement) moveInput = -1f;
 
         if (moveInput > 0 && !isFacingRight) Flip();
         else if (moveInput < 0 && isFacingRight) Flip();
         
         isRunning = moveInput != 0;
         
-        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
+        if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() && enableMovement)
             rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
 
         rigidBody.linearVelocity = new Vector2(moveInput * moveSpeed, rigidBody.linearVelocity.y);
@@ -99,8 +101,7 @@ public class PlayerController : MonoBehaviour
         if (col.CompareTag("Killzone"))
         {
             GameManager.instance.AddLives(-1);
-            transform.position = GameManager.instance.currentSpawnPoint;
-            rigidBody.linearVelocity = Vector2.zero;
+            StartCoroutine(GameManager.instance.RespawnSequence(transform, rigidBody));
         }
     }
 }
