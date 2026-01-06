@@ -11,7 +11,9 @@ namespace UnityStandardAssets._2D
         public Vector2 maxXAndY;
         public Vector2 minXAndY;
 
-        [Header("Enable maxmin for x and y")] public bool enableLimits = true;
+        [Header("Camera settings")] 
+        public bool enableLimits = true;
+        public bool enableSmoothing = true;
         [Header("Look Ahead Settings")] public float lookAheadFactor = 3f;
 
         private Transform mPlayer;
@@ -71,8 +73,8 @@ namespace UnityStandardAssets._2D
 
             float currentX = transform.position.x;
             float currentY = transform.position.y;
-            float finalX = currentX;
-            float finalY = currentY;
+            float finalX = targetX;
+            float finalY = targetY;
             float xMarg = xMargin;
             float yMarg = yMargin;
             if (!isFollowingPlayer)
@@ -80,12 +82,14 @@ namespace UnityStandardAssets._2D
                 xMarg = 0;
                 yMarg = 0;
             }
+            if (enableSmoothing)
+            {
+                if (isFollowingPlayer || Mathf.Abs(currentX - targetX) > xMarg)
+                    finalX = Mathf.Lerp(currentX, targetX, xSmooth * Time.deltaTime);
 
-            if (isFollowingPlayer || Mathf.Abs(currentX - targetX) > xMarg)
-                finalX = Mathf.Lerp(currentX, targetX, xSmooth * Time.deltaTime);
-
-            if (isFollowingPlayer || Mathf.Abs(currentY - targetY) > yMarg)
-                finalY = Mathf.Lerp(currentY, targetY, ySmooth * Time.deltaTime);
+                if (isFollowingPlayer || Mathf.Abs(currentY - targetY) > yMarg)
+                    finalY = Mathf.Lerp(currentY, targetY, ySmooth * Time.deltaTime);
+            }
 
             transform.position = new Vector3(finalX, finalY, transform.position.z);
         }
