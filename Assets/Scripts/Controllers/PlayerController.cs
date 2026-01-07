@@ -18,8 +18,11 @@ public class PlayerController : MonoBehaviour
     private bool isRunning = false;
     private bool isFacingRight = true;
     private Vector2 startPosition;
-    
+
     public bool enableMovement = true;
+
+    private bool isOnMovingPlatform = false;
+    private Rigidbody2D movingPlatformRb;
 
     void Awake()
     {
@@ -36,17 +39,19 @@ public class PlayerController : MonoBehaviour
 
         if (moveInput > 0 && !isFacingRight) Flip();
         else if (moveInput < 0 && isFacingRight) Flip();
-        
+
         isRunning = moveInput != 0;
-        
+
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() && enableMovement)
             rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
 
-        rigidBody.linearVelocity = new Vector2(moveInput * moveSpeed, rigidBody.linearVelocity.y);
+        rigidBody.linearVelocity =
+            new Vector2(moveInput * moveSpeed + (isOnMovingPlatform ? movingPlatformRb.linearVelocity.x : 0),
+                rigidBody.linearVelocity.y);
 
         animator.SetBool("isGrounded", IsGrounded());
         animator.SetBool("isRunning", isRunning);
-        animator.SetBool("isFalling", rigidBody.linearVelocity.y < -0.1f);
+        animator.SetBool("isFalling", rigidBody.linearVelocity.y < -0.1f && !isOnMovingPlatform);
     }
 
     bool IsGrounded()
@@ -74,7 +79,9 @@ public class PlayerController : MonoBehaviour
     {
         if (other.CompareTag("MovingPlatform"))
         {
-            transform.SetParent(null);
+            isOnMovingPlatform = false;
+            movingPlatformRb = null;
+            rigidBody.gravityScale = 1;
         }
     }
 
@@ -82,7 +89,9 @@ public class PlayerController : MonoBehaviour
     {
         if (col.CompareTag("MovingPlatform"))
         {
-            transform.SetParent(col.transform);
+            isOnMovingPlatform = true;
+            movingPlatformRb = col.GetComponent<Rigidbody2D>();
+            rigidBody.gravityScale = 1.5f;
         }
 
         // if (col.CompareTag("LevelExit"))
