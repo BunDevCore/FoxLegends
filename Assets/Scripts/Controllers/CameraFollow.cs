@@ -60,7 +60,7 @@ namespace UnityStandardAssets._2D
 
             if (isFollowingPlayer && Mathf.Abs(mPlayerBody.linearVelocity.x) > 0.1f)
             {
-                float direction = Mathf.Sign(targetTransform.localScale.x);
+                float direction = Mathf.Sign(mPlayerBody.linearVelocity.x);
                 targetX += direction * lookAheadFactor;
             }
 
