@@ -4,8 +4,10 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     [Space(10)] private Rigidbody2D rb;
+    [SerializeField] private float maxBounceVelocity = 3.0f;
+    [SerializeField] private float enemyBounceVelocity = 2.0f;
     private Animator animator;
-    
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -15,6 +17,7 @@ public class EnemyController : MonoBehaviour
     IEnumerator KillOnAnimationEnd()
     {
         rb.simulated = false;
+        // TODO: spawn explosion
         yield return new WaitForSeconds(0.5f);
         gameObject.SetActive(false);
     }
@@ -23,17 +26,21 @@ public class EnemyController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            if (transform.position.y < other.gameObject.transform.position.y)
+            Vector2 hitNormal = other.GetContact(0).normal;
+            Rigidbody2D playerRb = other.gameObject.GetComponent<Rigidbody2D>();
+            // Gracz zabija przeciwnika tylko jeśli:
+            // - hitNormal.y < -0.5f (uderzenie przyszło z góry)
+            // - playerRb.linearVelocity.y < 0 (gracz faktycznie spada/skacze na świnię)
+
+            if (hitNormal.y < -0.5f && playerRb.linearVelocity.y < 0.1f)
             {
                 gameObject.SendMessage("Death");
-                other.gameObject.SendMessage("KilledEnemy");
-                //animator.SetBool("isDead", true);
+                playerRb.linearVelocityY += enemyBounceVelocity;
+                if (playerRb.linearVelocityY > maxBounceVelocity) playerRb.linearVelocityY = maxBounceVelocity;
                 StartCoroutine(KillOnAnimationEnd());
             }
             else
-            {
                 other.gameObject.SendMessage("PlayerDeath");
-            }
         }
     }
 }

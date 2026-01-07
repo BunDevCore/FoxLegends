@@ -12,16 +12,15 @@ public class PlayerController : MonoBehaviour
     private float moveSpeed = 0.1f;
 
     [SerializeField] private float jumpForce = 6.0f;
-    [SerializeField] private float maxBounceVelocity = 3.0f;
-    [SerializeField] private float enemyBounceVelocity = 2.0f;
-    [Space(10)] private Rigidbody2D rigidBody;
+    [Space(10)] public Rigidbody2D rigidBody;
     [SerializeField] private LayerMask groundLayer;
     private const float rayLength = 0.2f;
     private Animator animator;
     private bool isRunning = false;
     private bool isFacingRight = true;
     private Vector2 startPosition;
-
+    
+    public bool isDead = false;
     public bool enableMovement = true;
 
     private bool isOnMovingPlatform = false;
@@ -59,7 +58,6 @@ public class PlayerController : MonoBehaviour
 
     bool IsGrounded()
     {
-        //Physics2D.Raycast(this.transform.position, Vector2.down, rayLength, groundLayer.value);
         return Physics2D.BoxCast(
             this.transform.position,
             new Vector2(.1f, .1F),
@@ -110,23 +108,16 @@ public class PlayerController : MonoBehaviour
         //     }
         // }
 
-        if (col.CompareTag("Killzone") || col.CompareTag("Enemy"))
+        if (col.CompareTag("Killzone"))
         {
             PlayerDeath();
         }
     }
 
-    private void KilledEnemy()
-    {
-        rigidBody.linearVelocityY += enemyBounceVelocity;
-        if (rigidBody.linearVelocityY > maxBounceVelocity) rigidBody.linearVelocityY = maxBounceVelocity;
-        // rigidBody.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
-        Debug.Log(rigidBody.linearVelocityY);
-    }
-
     private void PlayerDeath()
     {
+        if (isDead) return;
         GameManager.instance.AddLives(-1);
-        StartCoroutine(GameManager.instance.RespawnSequence(transform, rigidBody));
+        StartCoroutine(GameManager.instance.RespawnSequence(this));
     }
 }

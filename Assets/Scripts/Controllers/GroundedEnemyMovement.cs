@@ -59,7 +59,6 @@ public class GroundedEnemyMovement : MonoBehaviour
         bool isAtEdge = !Physics2D.Raycast(edgeOrigin, Vector2.down, enemyBottomSight, groundLayer);
         if (isAtEdge)
             return true;
-        // Vector2 inFront = (Vector2)transform.position + (dir * 0.2f);
         var inFront = Physics2D.Raycast(transform.position, dir, enemyFarSight, groundLayer);
         if (!inFront || inFront.collider.CompareTag("Player"))
             return false;
@@ -84,6 +83,5 @@ public class GroundedEnemyMovement : MonoBehaviour
         if (!shouldMove) return;
         if (((1 << other.gameObject.layer) & groundLayer.value) != 0) return;
         Flip();
-        // rb.linearVelocityX *= -1;
     }
 }
