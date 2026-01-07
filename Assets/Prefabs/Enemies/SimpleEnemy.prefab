@@ -177,6 +177,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: edc46cff196e5b83383d268856dac697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxBounceVelocity: 3
+  enemyBounceVelocity: 2
+  explosionPrefab: {fileID: 5824389032076557700, guid: cb0441dad8cb11d49be117ade19a3428, type: 3}
 --- !u!114 &8081421086846841760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,7 +196,8 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
-  rayLength: 0.5
+  enemyFarSight: 0.2
+  enemyBottomSight: 0.4
 --- !u!95 &7162282963335944731
 Animator:
   serializedVersion: 7

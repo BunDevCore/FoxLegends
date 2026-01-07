@@ -6,6 +6,8 @@ public class EnemyController : MonoBehaviour
     [Space(10)] private Rigidbody2D rb;
     [SerializeField] private float maxBounceVelocity = 3.0f;
     [SerializeField] private float enemyBounceVelocity = 2.0f;
+    [Header("Explosion Prefab")]
+    [SerializeField] private GameObject explosionPrefab;
     private Animator animator;
 
     void Awake()
@@ -17,7 +19,10 @@ public class EnemyController : MonoBehaviour
     IEnumerator KillOnAnimationEnd()
     {
         rb.simulated = false;
-        // TODO: spawn explosion
+        if (explosionPrefab != null)
+        {
+            Instantiate(explosionPrefab, transform.position, Quaternion.identity);
+        }
         yield return new WaitForSeconds(0.5f);
         gameObject.SetActive(false);
     }
