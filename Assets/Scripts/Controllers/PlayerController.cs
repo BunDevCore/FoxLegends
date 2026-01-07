@@ -110,7 +110,7 @@ public class PlayerController : MonoBehaviour
         //     }
         // }
 
-        if (col.CompareTag("Killzone"))
+        if (col.CompareTag("Killzone") || col.CompareTag("Enemy"))
         {
             PlayerDeath();
         }

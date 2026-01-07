@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 7162282963335944731}
   m_Layer: 0
   m_Name: SimpleEnemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -193,6 +193,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  rayLength: 0.5
 --- !u!95 &7162282963335944731
 Animator:
   serializedVersion: 7
