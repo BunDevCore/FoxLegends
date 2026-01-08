@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
         mCameraFollow = Camera.main.GetComponent<CameraFollow>();
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
-        lives = hearts.Length;
+        lives = 3;
         UpdateHeartsUI();
     }
 
