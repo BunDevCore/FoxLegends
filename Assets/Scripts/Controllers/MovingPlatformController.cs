@@ -10,8 +10,9 @@ public class MovingPlatformController : MonoBehaviour
     [SerializeField]
     private GameObject[] waypoints;
 
-    [SerializeField] private GameObject platform;
-    
+    [SerializeField] private GameObject platformPrefab;
+    private GameObject platform;
+
 
     private int currentWaypointIndex = 0;
 
@@ -20,12 +21,10 @@ public class MovingPlatformController : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 moveDirection;
 
-    private void Awake() => rb = platform.GetComponent<Rigidbody2D>();
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Awake()
     {
-        platform.transform.position = waypoints[currentWaypointIndex].transform.position;
+        platform = Instantiate(platformPrefab, waypoints[currentWaypointIndex].transform.position, Quaternion.identity);
+        rb = platform.GetComponent<Rigidbody2D>();
         CalculateDirection();
     }
 
