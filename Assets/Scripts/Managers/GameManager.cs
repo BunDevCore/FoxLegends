@@ -181,8 +181,12 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    public IEnumerator RespawnSequence(Transform playerTransform, Rigidbody2D playerRb)
+    public IEnumerator RespawnSequence(PlayerController player)
     {
+        player.isDead = true; 
+        player.enableMovement = false;
+        player.rigidBody.linearVelocity = Vector2.zero;
+        player.rigidBody.simulated = false;
         float alpha = 0;
         while (alpha < 1)
         {
@@ -192,8 +196,8 @@ public class GameManager : MonoBehaviour
         }
 
         mCameraFollow.enableSmoothing = false;
-        playerTransform.position = currentSpawnPoint;
-        playerRb.linearVelocity = Vector2.zero;
+        player.transform.position = currentSpawnPoint;
+        player.rigidBody.linearVelocity = Vector2.zero;
         yield return new WaitForSeconds(0.3f);
         mCameraFollow.enableSmoothing = true;
         
@@ -203,5 +207,8 @@ public class GameManager : MonoBehaviour
             blackoutImage.color = new Color(0, 0, 0, alpha);
             yield return null;
         }
+        player.isDead = false;
+        player.enableMovement = true;
+        player.rigidBody.simulated = true;
     }
 }
