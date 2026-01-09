@@ -10,12 +10,14 @@ public class BunnyController : MonoBehaviour
     [SerializeField] private float moveRange = 1.0f;
     [SerializeField] private float minWaitTime = 1.0f;
     [SerializeField] private float maxWaitTime = 4.0f;
-
+    [SerializeField] private GameObject buttonObject;
+    [SerializeField] private Transform graphicsTransform;
+    [SerializeField] private Animator graphicsAnimator;
+    
     private Rigidbody2D rb;
     private Vector2 startPosition;
-    private bool isMoving = false;
     private bool isFacingRight = true;
-    private Animator animator;
+    private bool isPlayerInRange;
 
     // private void OnDrawGizmos()
     // {
@@ -27,12 +29,12 @@ public class BunnyController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
         startPosition = transform.position;
     }
 
     void Start()
     {
+        buttonObject.SetActive(false);
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null)
         {
@@ -44,12 +46,20 @@ public class BunnyController : MonoBehaviour
         StartCoroutine(WanderRoutine());
     }
 
+    void Update()
+    {
+        if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
+        {
+            Debug.Log("BUNNY BUNNY BUNNY BUNNY!");
+        }
+    }
+
     IEnumerator WanderRoutine()
     {
         while (true)
         {
             float waitTime = Random.Range(minWaitTime, maxWaitTime);
-            if (animator) animator.SetBool("isRunning", false);
+            if (graphicsAnimator) graphicsAnimator.SetBool("isRunning", false);
             yield return new WaitForSeconds(waitTime);
             float targetX = Random.Range(startPosition.x - moveRange, startPosition.x + moveRange);
             yield return StartCoroutine(MoveToX(targetX));
@@ -58,8 +68,7 @@ public class BunnyController : MonoBehaviour
 
     IEnumerator MoveToX(float targetX)
     {
-        isMoving = true;
-        if (animator) animator.SetBool("isRunning", true);
+        if (graphicsAnimator) graphicsAnimator.SetBool("isRunning", true);
         while (Mathf.Abs(transform.position.x - targetX) > 0.1f)
         {
             float direction = targetX > transform.position.x ? 1 : -1;
@@ -69,14 +78,31 @@ public class BunnyController : MonoBehaviour
             yield return null;
         }
         rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
-        isMoving = false;
     }
 
     void Flip()
     {
         isFacingRight = !isFacingRight;
-        Vector3 localScale = transform.localScale;
-        localScale.x *= -1;
-        transform.localScale = localScale;
+        Vector3 theScale = graphicsTransform.localScale;
+        theScale.x *= -1;
+        graphicsTransform.localScale = theScale;
+    }
+    
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            isPlayerInRange = true;
+            if (buttonObject != null) buttonObject.SetActive(true);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            isPlayerInRange = false;
+            if (buttonObject != null) buttonObject.SetActive(false);
+        }
     }
 }
