@@ -20,22 +20,26 @@ public class GameManager : MonoBehaviour
     public GameState currentGameState = GameState.PAUSE_MENU;
     public static GameManager instance;
 
-    [Header("UI References")] public Canvas inGameCanvas;
+    [Header("UI References")]
+    public Canvas inGameCanvas;
     public Canvas pauseMenuCanvas;
     public Canvas settingsCanvas;
     public TMP_Text qualityText;
     public TMP_Text timerText;
 
-    [Header("Checkpoint System")] public Vector3 currentSpawnPoint;
+    [Header("Checkpoint System")]
+    public Vector3 currentSpawnPoint;
 
     public GameObject[] hearts;
     private float currentTime = 0;
     private int lives;
 
-    [Header("Cursor Manager")] public CursorManager cursorManager;
+    [Header("Cursor Manager")]
+    public CursorManager cursorManager;
 
-
-    [Header("Fading")] public Image blackoutImage;
+    
+    [Header("Fading")]
+    public Image blackoutImage;
     public float fadeSpeed = 2f;
     private CameraFollow mCameraFollow;
 
@@ -190,10 +194,10 @@ public class GameManager : MonoBehaviour
                 hearts[i].SetActive(false);
         }
     }
-
+    
     public IEnumerator RespawnSequence(PlayerController player)
     {
-        player.isDead = true;
+        player.isDead = true; 
         player.enableMovement = false;
         player.rigidBody.linearVelocity = Vector2.zero;
         player.rigidBody.simulated = false;
@@ -210,9 +214,10 @@ public class GameManager : MonoBehaviour
         player.rigidBody.linearVelocity = Vector2.zero;
         mCameraFollow.minXAndY = lastMinXandY;
         mCameraFollow.maxXAndY = lastMaxXandY;
+        player.animator.SetBool("isDead", false);
         yield return new WaitForSeconds(0.3f);
         mCameraFollow.enableSmoothing = true;
-
+        
         while (alpha > 0)
         {
             alpha -= Time.deltaTime * fadeSpeed;
