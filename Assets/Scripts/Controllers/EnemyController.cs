@@ -18,6 +18,7 @@ public class EnemyController : MonoBehaviour
 
     IEnumerator KillOnAnimationEnd()
     {
+        animator.enabled = false;
         rb.simulated = false;
         if (explosionPrefab != null)
         {
