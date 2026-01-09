@@ -18,6 +18,7 @@ public class EnemyController : MonoBehaviour
 
     IEnumerator KillOnAnimationEnd()
     {
+        animator.enabled = false;
         rb.simulated = false;
         if (explosionPrefab != null)
         {
@@ -29,6 +30,7 @@ public class EnemyController : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D other)
     {
+        
         if (other.gameObject.CompareTag("Player"))
         {
             Vector2 hitNormal = other.GetContact(0).normal;
@@ -46,6 +48,15 @@ public class EnemyController : MonoBehaviour
             }
             else
                 other.gameObject.SendMessage("PlayerDeath");
+        }
+        
+    }
+    
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.CompareTag("Killzone"))
+        {
+            StartCoroutine(KillOnAnimationEnd());
         }
     }
 }

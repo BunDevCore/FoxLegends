@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     [Space(10)] public Rigidbody2D rigidBody;
     [SerializeField] private LayerMask groundLayer;
     private const float rayLength = 0.2f;
-    private Animator animator;
+    public Animator animator;
     private bool isRunning = false;
     private bool isFacingRight = true;
     private Vector2 startPosition;
@@ -117,6 +117,7 @@ public class PlayerController : MonoBehaviour
     private void PlayerDeath()
     {
         if (isDead) return;
+        animator.SetBool("isDead", true);
         GameManager.instance.AddLives(-1);
         StartCoroutine(GameManager.instance.RespawnSequence(this));
     }
