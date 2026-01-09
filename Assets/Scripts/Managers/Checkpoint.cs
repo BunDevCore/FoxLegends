@@ -9,6 +9,11 @@ public class Checkpoint : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private bool isActivated = false;
 
+    [Header("Camera limits")]
+    public bool useCameraLimits = true;
+    public Vector2 minXandY;
+    public Vector2 maxXandY;
+
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -31,7 +36,10 @@ public class Checkpoint : MonoBehaviour
         {
             spriteRenderer.sprite = activeSprite;
         }
-        GameManager.instance.UpdateSpawnPoint(transform.position + new Vector3(0, 0.1f, 0));
+        if (useCameraLimits) 
+            GameManager.instance.UpdateSpawnPoint(transform.position + new Vector3(0, 0.1f, 0));
+        else 
+            GameManager.instance.UpdateSpawnPoint(transform.position + new Vector3(0, 0.1f, 0), minXandY, maxXandY);
     }
     
     public void ResetCheckpoint()
