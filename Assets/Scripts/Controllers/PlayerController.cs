@@ -36,9 +36,10 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         float moveInput = 0f;
-        if (Input.GetKey(KeyCode.D) && enableMovement) moveInput = 1f;
-        if (Input.GetKey(KeyCode.A) && enableMovement) moveInput = -1f;
-        if (Input.GetKey(KeyCode.S) && enableMovement && oneWayPlatform) StartCoroutine(DisableCollision());
+        if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && enableMovement) moveInput = 1f;
+        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && enableMovement) moveInput = -1f;
+        if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement && oneWayPlatform)
+            StartCoroutine(DisableCollision());
 
         if (moveInput > 0 && !isFacingRight) Flip();
         else if (moveInput < 0 && isFacingRight) Flip();
