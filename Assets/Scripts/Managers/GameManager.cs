@@ -153,7 +153,8 @@ public class GameManager : MonoBehaviour
     {
         cursorManager.HideAndResetCursor();
         SetGameState(GameState.GAME);
-        Time.timeScale = 1;
+        if (!DialogueManager.instance.IsActive)
+            Time.timeScale = 1;
     }
 
     public void UpdateSpawnPoint(Vector3 newPosition)
