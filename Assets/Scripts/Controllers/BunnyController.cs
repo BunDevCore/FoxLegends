@@ -7,13 +7,14 @@ public class BunnyController : MonoBehaviour
 {
     [Header("Bunny settings")] [SerializeField]
     private float moveSpeed = 1.5f;
+
     [SerializeField] private float moveRange = 1.0f;
     [SerializeField] private float minWaitTime = 1.0f;
     [SerializeField] private float maxWaitTime = 4.0f;
     [SerializeField] private GameObject buttonObject;
     [SerializeField] private Transform graphicsTransform;
     [SerializeField] private Animator graphicsAnimator;
-    
+
     private Rigidbody2D rb;
     private Vector2 startPosition;
     private bool isFacingRight = true;
@@ -50,7 +51,7 @@ public class BunnyController : MonoBehaviour
     {
         if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
         {
-            Debug.Log("BUNNY BUNNY BUNNY BUNNY!");
+            Interact();
         }
     }
 
@@ -71,12 +72,19 @@ public class BunnyController : MonoBehaviour
         if (graphicsAnimator) graphicsAnimator.SetBool("isRunning", true);
         while (Mathf.Abs(transform.position.x - targetX) > 0.1f)
         {
+            if (DialogueManager.instance.IsActive) 
+            {
+                rb.linearVelocity = Vector2.zero;
+                yield return null; 
+                continue;
+            }
             float direction = targetX > transform.position.x ? 1 : -1;
             if (direction > 0 && !isFacingRight) Flip();
             else if (direction < 0 && isFacingRight) Flip();
             rb.linearVelocity = new Vector2(direction * moveSpeed, rb.linearVelocity.y);
             yield return null;
         }
+
         rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
     }
 
@@ -87,7 +95,7 @@ public class BunnyController : MonoBehaviour
         theScale.x *= -1;
         graphicsTransform.localScale = theScale;
     }
-    
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
@@ -104,5 +112,11 @@ public class BunnyController : MonoBehaviour
             isPlayerInRange = false;
             if (buttonObject != null) buttonObject.SetActive(false);
         }
+    }
+
+    private void Interact()
+    {
+        if (!DialogueManager.instance.IsActive)
+            DialogueManager.instance.TriggerDialogue("test");
     }
 }
