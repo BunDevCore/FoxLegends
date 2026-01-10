@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    [Space(10)] private Rigidbody2D rb;
+    private Rigidbody2D rb;
+    private BoxCollider2D box;
     [SerializeField] private float maxBounceVelocity = 3.0f;
     [SerializeField] private float enemyBounceVelocity = 2.0f;
     [Header("Explosion Prefab")]
@@ -13,13 +14,16 @@ public class EnemyController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        box = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
     }
 
     IEnumerator KillOnAnimationEnd()
     {
         animator.enabled = false;
-        rb.simulated = false;
+        box.enabled = false;
+        rb.constraints = RigidbodyConstraints2D.FreezePositionX;
+        rb.linearVelocity = Vector2.zero;
         if (explosionPrefab != null)
         {
             Instantiate(explosionPrefab, transform.position, Quaternion.identity);

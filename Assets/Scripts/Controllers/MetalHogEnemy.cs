@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GroundedEnemyMovement : MonoBehaviour
+public class MetalHogEnemy : MonoBehaviour
 {
     [Header("Movement parameters")] [Range(0.01f, 20.0f)] [SerializeField]
     private float moveSpeed = 0.1f;
