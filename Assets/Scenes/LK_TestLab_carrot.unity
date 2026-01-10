@@ -1451,6 +1451,7 @@ GameObject:
   - component: {fileID: 602763778}
   - component: {fileID: 602763780}
   - component: {fileID: 602763779}
+  - component: {fileID: 602763781}
   m_Layer: 0
   m_Name: DialoguePanel
   m_TagString: Untagged
@@ -1508,7 +1509,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 0.22
 --- !u!222 &602763780
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1517,6 +1518,66 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 602763777}
   m_CullTransparentMesh: 1
+--- !u!114 &602763781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 602763777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec88c2096ace4a5889c37c8c37249b89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dialoguePanel: {fileID: 602763777}
+  portraitImage: {fileID: 1928208267}
+  dialogueText: {fileID: 905866166}
+  typingSpeed: 0.05
+  dialogueLibrary:
+  - dialogueID: NoCarrots
+    conversation:
+    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
+      text: You <color="red">need</color> to collect all of my carrots
+    - portrait: {fileID: 3266743498106034031, guid: 4dfe0bba3168d0a468b9fe283eb5b1a2, type: 3}
+      text: all?
+    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
+      text: yes. all three of them.
+  - dialogueID: OneCarrot
+    conversation:
+    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
+      text: You <color="red">need</color> to collect all of my carrots. You are still
+        missing 2.
+    - portrait: {fileID: 3266743498106034031, guid: 4dfe0bba3168d0a468b9fe283eb5b1a2, type: 3}
+      text: Where?
+    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
+      text: I don't know
+  - dialogueID: TwoCarrots
+    conversation:
+    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
+      text: You are missing just one carrot.
+    - portrait: {fileID: 3266743498106034031, guid: 4dfe0bba3168d0a468b9fe283eb5b1a2, type: 3}
+      text: One?
+    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
+      text: yes. you can do it!
+  - dialogueID: AllCarrots
+    conversation:
+    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
+      text: You got all of my <color=#ff7626>carrots</color>.
+    - portrait: {fileID: 3266743498106034031, guid: 4dfe0bba3168d0a468b9fe283eb5b1a2, type: 3}
+      text: YAY :D
+  - dialogueID: Level1Intro
+    conversation:
+    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
+      text: Hello. I am Elenor.
+    - portrait: {fileID: 3266743498106034031, guid: 4dfe0bba3168d0a468b9fe283eb5b1a2, type: 3}
+      text: Hey! Name's Legends
+    - portrait: {fileID: 3266743498106034031, guid: 4dfe0bba3168d0a468b9fe283eb5b1a2, type: 3}
+      text: So I gotta go
+    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
+      text: NOOOO!!! You <color="red">need</color> to find all of my carrots!!!
+    - portrait: {fileID: 3266743498106034031, guid: 4dfe0bba3168d0a468b9fe283eb5b1a2, type: 3}
+      text: okay
 --- !u!1 &624782599
 GameObject:
   m_ObjectHideFlags: 0
@@ -12655,7 +12716,6 @@ GameObject:
   - component: {fileID: 1876965175}
   - component: {fileID: 1876965174}
   - component: {fileID: 1876965176}
-  - component: {fileID: 1876965177}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -12732,31 +12792,6 @@ MonoBehaviour:
   hasNormalKey: 0
   hasGoldenKey: 0
   hasDiamondKey: 0
---- !u!114 &1876965177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1876965173}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec88c2096ace4a5889c37c8c37249b89, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialoguePanel: {fileID: 602763777}
-  portraitImage: {fileID: 1928208267}
-  dialogueText: {fileID: 905866166}
-  typingSpeed: 0.05
-  dialogueLibrary:
-  - dialogueID: test
-    conversation:
-    - portrait: {fileID: 3266743498106034031, guid: 4dfe0bba3168d0a468b9fe283eb5b1a2, type: 3}
-      text: hello
-    - portrait: {fileID: 2815116747347802213, guid: a5bf5f0baefaf1146b8806b01c041d90, type: 3}
-      text: HI!!!!
-    - portrait: {fileID: 3266743498106034031, guid: 4dfe0bba3168d0a468b9fe283eb5b1a2, type: 3}
-      text: :D
 --- !u!1 &1903767100
 GameObject:
   m_ObjectHideFlags: 0
@@ -13079,7 +13114,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 100, y: 0}
+  m_AnchoredPosition: {x: 100, y: 3.3}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1928208267

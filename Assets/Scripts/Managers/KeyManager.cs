@@ -44,16 +44,5 @@ public class KeyManager : MonoBehaviour
                 diamondKeyUI.sprite = diamondKeySprite;
                 break;
         }
-        
-        CheckAllKeys();
-    }
-
-    private void CheckAllKeys()
-    {
-        if (hasNormalKey && hasGoldenKey && hasDiamondKey)
-        {
-            Debug.Log("Wszystkie klucze zebrane!");
-            // GameManager.instance.keysCompleted = true;
-        }
     }
 }

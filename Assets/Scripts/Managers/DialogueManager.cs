@@ -59,6 +59,8 @@ public class DialogueManager : MonoBehaviour
         NamedDialogue found = dialogueLibrary.Find(d => d.dialogueID == id);
         if (found.conversation is { Length: > 0 })
             StartDialogue(found.conversation);
+        else
+            Debug.LogError("Dialogue ID `" + id + "` not found");
     }
 
     public void StartDialogue(DialogueLine[] dialogueConversation)
@@ -95,33 +97,36 @@ public class DialogueManager : MonoBehaviour
     IEnumerator TypeSentence(string sentence)
     {
         isTyping = true;
-        dialogueText.text = "";
-        foreach (char letter in sentence)
+        dialogueText.text = sentence;
+        dialogueText.maxVisibleCharacters = 0;
+        dialogueText.ForceMeshUpdate();
+        int totalVisibleCharacters = dialogueText.textInfo.characterCount;
+        for (int i = 0; i <= totalVisibleCharacters; i++)
         {
-            dialogueText.text += letter;
+            dialogueText.maxVisibleCharacters = i;
             yield return new WaitForSecondsRealtime(typingSpeed);
         }
-
         isTyping = false;
     }
 
     private void CompleteSentence()
     {
         StopAllCoroutines();
-        dialogueText.text = currentLine.text;
+        dialogueText.ForceMeshUpdate(); 
+        dialogueText.maxVisibleCharacters = dialogueText.textInfo.characterCount;
         isTyping = false;
     }
 
     public void EndDialogue()
     {
-        Time.timeScale = 1f;
-        dialoguePanel.SetActive(false);
         StartCoroutine(ResetActiveFlag());
     }
     
     private IEnumerator ResetActiveFlag()
     {
         yield return new WaitForEndOfFrame();
+        Time.timeScale = 1f;
         IsActive = false;
+        dialoguePanel.SetActive(false);
     }
 }

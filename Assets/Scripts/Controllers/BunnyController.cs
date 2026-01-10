@@ -72,12 +72,13 @@ public class BunnyController : MonoBehaviour
         if (graphicsAnimator) graphicsAnimator.SetBool("isRunning", true);
         while (Mathf.Abs(transform.position.x - targetX) > 0.1f)
         {
-            if (DialogueManager.instance.IsActive) 
+            if (DialogueManager.instance.IsActive)
             {
                 rb.linearVelocity = Vector2.zero;
-                yield return null; 
+                yield return null;
                 continue;
             }
+
             float direction = targetX > transform.position.x ? 1 : -1;
             if (direction > 0 && !isFacingRight) Flip();
             else if (direction < 0 && isFacingRight) Flip();
@@ -116,7 +117,27 @@ public class BunnyController : MonoBehaviour
 
     private void Interact()
     {
-        if (!DialogueManager.instance.IsActive)
-            DialogueManager.instance.TriggerDialogue("test");
+        if (DialogueManager.instance.IsActive) return;
+        
+        int carrots = 0;
+        carrots += KeyManager.instance.hasNormalKey ? 1 : 0;
+        carrots += KeyManager.instance.hasGoldenKey ? 1 : 0;
+        carrots += KeyManager.instance.hasDiamondKey ? 1 : 0;
+
+        switch (carrots)
+        {
+            case 0:
+                DialogueManager.instance.TriggerDialogue("NoCarrots");
+                break;
+            case 1:
+                DialogueManager.instance.TriggerDialogue("OneCarrot");
+                break;
+            case 2:
+                DialogueManager.instance.TriggerDialogue("TwoCarrots");
+                break;
+            case 3:
+                DialogueManager.instance.TriggerDialogue("AllCarrots");
+                break;
+        }
     }
 }
