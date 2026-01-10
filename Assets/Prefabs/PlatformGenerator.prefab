@@ -49,9 +49,10 @@ MonoBehaviour:
   waypoints:
   - {fileID: 7701014464793763675}
   - {fileID: 9016428408094955173}
+  - {fileID: 9016428408094955173}
   platformPrefab: {fileID: 7031098288223794931, guid: f4bb9f054479290379caef0ce6ec8550, type: 3}
-  speed: 1
-  interval: 3
+  speed: 3
+  interval: 1
 --- !u!1 &7701014464793763675
 GameObject:
   m_ObjectHideFlags: 0
