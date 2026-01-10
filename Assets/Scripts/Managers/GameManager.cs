@@ -153,7 +153,7 @@ public class GameManager : MonoBehaviour
     {
         cursorManager.HideAndResetCursor();
         SetGameState(GameState.GAME);
-        if (DialogueManager.instance && !DialogueManager.instance.IsActive)
+        if (!DialogueManager.instance || !DialogueManager.instance.IsActive)
             Time.timeScale = 1;
     }
 

@@ -122,7 +122,7 @@ public class AirstrikeEnemy : MonoBehaviour
         Gizmos.DrawLine(leftBound + Vector3.up, leftBound + Vector3.down);
         Gizmos.DrawLine(rightBound + Vector3.up, rightBound + Vector3.down);
         Gizmos.color = Color.cyan;
-        if (playerTransform != null)
+        if (playerTransform)
         {
             float pX = Math.Clamp(playerTransform.position.x, transform.position.x - maxStep,
                 transform.position.x + maxStep);
