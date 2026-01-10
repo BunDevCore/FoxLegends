@@ -24,6 +24,7 @@ public class MovingPlatformController : MonoBehaviour
     private void Awake()
     {
         platform = Instantiate(platformPrefab, waypoints[currentWaypointIndex].transform.position, Quaternion.identity);
+        platform.GetComponent<SpriteRenderer>().sortingLayerName = "Platforms";
         rb = platform.GetComponent<Rigidbody2D>();
         CalculateDirection();
     }

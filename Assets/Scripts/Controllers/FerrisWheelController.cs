@@ -29,6 +29,7 @@ public class FerrisWheelController : MonoBehaviour
         platforms = Enumerable.Range(0, NUM_PLATFORMS).Select(i =>
         {
             var platform = Instantiate(platformPrefab, positions[i], Quaternion.identity);
+            platform.GetComponent<SpriteRenderer>().sortingLayerName = "Platforms";
             rb[i] = platform.GetComponent<Rigidbody2D>();
             return platform;
         }).ToArray();
