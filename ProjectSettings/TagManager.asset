@@ -12,6 +12,7 @@ TagManager:
   - Heart
   - MovingPlatform
   - Killzone
+  - OneWayPlatform
   layers:
   - Default
   - TransparentFX

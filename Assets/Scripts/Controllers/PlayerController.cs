@@ -1,10 +1,6 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class PlayerController : MonoBehaviour
 {
@@ -19,18 +15,22 @@ public class PlayerController : MonoBehaviour
     private bool isRunning = false;
     private bool isFacingRight = true;
     private Vector2 startPosition;
-    
+
     public bool isDead = false;
     public bool enableMovement = true;
 
     private bool isOnMovingPlatform = false;
     private Rigidbody2D movingPlatformRb;
 
+    private GameObject oneWayPlatform;
+    private BoxCollider2D playerCollider;
+
     void Awake()
     {
         startPosition = transform.position;
         rigidBody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        playerCollider = GetComponent<BoxCollider2D>();
     }
 
     void Update()
@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
         float moveInput = 0f;
         if (Input.GetKey(KeyCode.D) && enableMovement) moveInput = 1f;
         if (Input.GetKey(KeyCode.A) && enableMovement) moveInput = -1f;
+        if (Input.GetKey(KeyCode.S) && enableMovement && oneWayPlatform) StartCoroutine(DisableCollision());
 
         if (moveInput > 0 && !isFacingRight) Flip();
         else if (moveInput < 0 && isFacingRight) Flip();
@@ -112,6 +113,31 @@ public class PlayerController : MonoBehaviour
         {
             PlayerDeath();
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("OneWayPlatform"))
+        {
+            oneWayPlatform = collision.gameObject;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("OneWayPlatform"))
+        {
+            oneWayPlatform = null;
+        }
+    }
+
+    private IEnumerator DisableCollision()
+    {
+        TilemapCollider2D platformCollider = oneWayPlatform.GetComponent<TilemapCollider2D>();
+
+        Physics2D.IgnoreCollision(playerCollider, platformCollider);
+        yield return new WaitForSeconds(0.2f);
+        Physics2D.IgnoreCollision(playerCollider, platformCollider, false);
     }
 
     private void PlayerDeath()
