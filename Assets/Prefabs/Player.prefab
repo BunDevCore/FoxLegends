@@ -187,9 +187,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 1.75
   jumpForce: 3.5
+  rigidBody: {fileID: 0}
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  animator: {fileID: 0}
+  isDead: 0
+  enableMovement: 1
+  isOnMovingPlatform: 0
 --- !u!61 &6815974513403344261
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -393,4 +398,6 @@ MonoBehaviour:
   maxXAndY: {x: 32.11, y: 100}
   minXAndY: {x: -7.5, y: -0.5}
   enableLimits: 1
-  lookAheadFactor: 1.5
+  enableSmoothing: 1
+  lookAheadX: 3
+  lookAheadY: 1

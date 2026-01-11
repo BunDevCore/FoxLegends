@@ -59258,6 +59258,14 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 4957528426113700005, guid: be466600b1f9e104994599fe6a0c94ff, type: 3}
+      propertyPath: lookAheadX
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4957528426113700005, guid: be466600b1f9e104994599fe6a0c94ff, type: 3}
+      propertyPath: lookAheadY
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4957528426113700005, guid: be466600b1f9e104994599fe6a0c94ff, type: 3}
       propertyPath: minXAndY.x
       value: -30
       objectReference: {fileID: 0}
