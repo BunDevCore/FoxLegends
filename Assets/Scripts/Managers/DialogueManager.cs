@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 
 [System.Serializable]
 public struct DialogueLine
@@ -28,6 +30,7 @@ public class DialogueManager : MonoBehaviour
 
     [Header("Settings")] public float typingSpeed = 0.05f;
     private Queue<DialogueLine> lines;
+    private Action onDialogueEndCallback;
     private bool isTyping = false;
     public bool IsActive { get; private set; } = false;
     private DialogueLine currentLine;
@@ -54,23 +57,23 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
-    public void TriggerDialogue(string id)
+    public void TriggerDialogue(string id, Action callback = null)
     {
         NamedDialogue found = dialogueLibrary.Find(d => d.dialogueID == id);
         if (found.conversation is { Length: > 0 })
-            StartDialogue(found.conversation);
+            StartDialogue(found.conversation, callback);
         else
             Debug.LogError("Dialogue ID `" + id + "` not found");
     }
 
-    public void StartDialogue(DialogueLine[] dialogueConversation)
+    public void StartDialogue(DialogueLine[] dialogueConversation, Action callback = null)
     {
+        onDialogueEndCallback = callback;
         Time.timeScale = 0f;
         IsActive = true;
         dialoguePanel.SetActive(true);
-
         lines.Clear();
-
+        
         foreach (DialogueLine line in dialogueConversation)
         {
             lines.Enqueue(line);
@@ -106,13 +109,14 @@ public class DialogueManager : MonoBehaviour
             dialogueText.maxVisibleCharacters = i;
             yield return new WaitForSecondsRealtime(typingSpeed);
         }
+
         isTyping = false;
     }
 
     private void CompleteSentence()
     {
         StopAllCoroutines();
-        dialogueText.ForceMeshUpdate(); 
+        dialogueText.ForceMeshUpdate();
         dialogueText.maxVisibleCharacters = dialogueText.textInfo.characterCount;
         isTyping = false;
     }
@@ -121,12 +125,17 @@ public class DialogueManager : MonoBehaviour
     {
         StartCoroutine(ResetActiveFlag());
     }
-    
+
     private IEnumerator ResetActiveFlag()
     {
         yield return new WaitForEndOfFrame();
         Time.timeScale = 1f;
         IsActive = false;
         dialoguePanel.SetActive(false);
+        if (onDialogueEndCallback != null)
+        {
+            onDialogueEndCallback.Invoke();
+            onDialogueEndCallback = null;
+        }
     }
 }

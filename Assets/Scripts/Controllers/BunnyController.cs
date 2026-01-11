@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
 public class BunnyController : MonoBehaviour
@@ -19,13 +20,9 @@ public class BunnyController : MonoBehaviour
     private Vector2 startPosition;
     private bool isFacingRight = true;
     private bool isPlayerInRange;
-
-    // private void OnDrawGizmos()
-    // {
-    //     Gizmos.color = Color.green;
-    //     Gizmos.DrawRay(startPosition, Vector2.left * moveRange);
-    //     Gizmos.DrawRay(startPosition, Vector2.right * moveRange);
-    // }
+    
+    [Header("Interaction Event")]
+    public UnityEvent onInteract;
 
     void Awake()
     {
@@ -72,7 +69,7 @@ public class BunnyController : MonoBehaviour
         if (graphicsAnimator) graphicsAnimator.SetBool("isRunning", true);
         while (Mathf.Abs(transform.position.x - targetX) > 0.1f)
         {
-            if (DialogueManager.instance.IsActive)
+            if (DialogueManager.instance && DialogueManager.instance.IsActive)
             {
                 rb.linearVelocity = Vector2.zero;
                 yield return null;
@@ -117,27 +114,15 @@ public class BunnyController : MonoBehaviour
 
     private void Interact()
     {
-        if (DialogueManager.instance.IsActive) return;
-        
-        int carrots = 0;
-        carrots += KeyManager.instance.hasNormalKey ? 1 : 0;
-        carrots += KeyManager.instance.hasGoldenKey ? 1 : 0;
-        carrots += KeyManager.instance.hasDiamondKey ? 1 : 0;
+        if (!DialogueManager.instance || DialogueManager.instance.IsActive) return;
 
-        switch (carrots)
-        {
-            case 0:
-                DialogueManager.instance.TriggerDialogue("NoCarrots");
-                break;
-            case 1:
-                DialogueManager.instance.TriggerDialogue("OneCarrot");
-                break;
-            case 2:
-                DialogueManager.instance.TriggerDialogue("TwoCarrots");
-                break;
-            case 3:
-                DialogueManager.instance.TriggerDialogue("AllCarrots");
-                break;
-        }
+        onInteract?.Invoke();
+    }
+    
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawRay(startPosition, Vector2.left * moveRange);
+        Gizmos.DrawRay(startPosition, Vector2.right * moveRange);
     }
 }
