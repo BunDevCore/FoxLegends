@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     public bool isDead = false;
     public bool enableMovement = true;
 
-    private bool isOnMovingPlatform = false;
+    public bool isOnMovingPlatform = false;
     private Rigidbody2D movingPlatformRb;
 
     private GameObject oneWayPlatform;

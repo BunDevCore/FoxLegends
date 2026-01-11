@@ -11,13 +11,14 @@ namespace UnityStandardAssets._2D
         public Vector2 maxXAndY;
         public Vector2 minXAndY;
 
-        [Header("Camera settings")] 
-        public bool enableLimits = true;
+        [Header("Camera settings")] public bool enableLimits = true;
         public bool enableSmoothing = true;
-        [Header("Look Ahead Settings")] public float lookAheadFactor = 3f;
+        [Header("Look Ahead Settings")] public float lookAheadX = 1.5f;
+        public float lookAheadY = .5f;
 
         private Transform mPlayer;
         private Rigidbody2D mPlayerBody;
+        private PlayerController mPlayerCtrl;
         private Transform mCurrentTarget;
 
         private void Awake()
@@ -25,6 +26,7 @@ namespace UnityStandardAssets._2D
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             mPlayer = playerObj.transform;
             mPlayerBody = playerObj.GetComponent<Rigidbody2D>();
+            mPlayerCtrl = playerObj.GetComponent<PlayerController>();
         }
 
         private void Start()
@@ -61,7 +63,13 @@ namespace UnityStandardAssets._2D
             if (isFollowingPlayer && Mathf.Abs(mPlayerBody.linearVelocity.x) > 0.1f)
             {
                 float direction = Mathf.Sign(mPlayerBody.linearVelocity.x);
-                targetX += direction * lookAheadFactor;
+                targetX += direction * lookAheadX;
+            }
+
+            if (isFollowingPlayer && Mathf.Abs(mPlayerBody.linearVelocity.y) > 0.1f && mPlayerCtrl.isOnMovingPlatform)
+            {
+                float direction = Mathf.Sign(mPlayerBody.linearVelocity.y);
+                targetY += direction * lookAheadY;
             }
 
             if (enableLimits)
@@ -69,7 +77,6 @@ namespace UnityStandardAssets._2D
                 targetX = Mathf.Clamp(targetX, minXAndY.x, maxXAndY.x);
                 targetY = Mathf.Clamp(targetY, minXAndY.y, maxXAndY.y);
             }
-
 
             float currentX = transform.position.x;
             float currentY = transform.position.y;
@@ -82,13 +89,13 @@ namespace UnityStandardAssets._2D
                 xMarg = 0;
                 yMarg = 0;
             }
+
             if (enableSmoothing)
             {
                 if (isFollowingPlayer || Mathf.Abs(currentX - targetX) > xMarg)
-                    finalX = Mathf.Lerp(currentX, targetX, xSmooth * Time.deltaTime);
-
+                    finalX = Mathf.Lerp(currentX, targetX, xSmooth * Time.unscaledDeltaTime);
                 if (isFollowingPlayer || Mathf.Abs(currentY - targetY) > yMarg)
-                    finalY = Mathf.Lerp(currentY, targetY, ySmooth * Time.deltaTime);
+                    finalY = Mathf.Lerp(currentY, targetY, ySmooth * Time.unscaledDeltaTime);
             }
 
             transform.position = new Vector3(finalX, finalY, transform.position.z);
