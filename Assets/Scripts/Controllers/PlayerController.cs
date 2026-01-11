@@ -18,6 +18,12 @@ public class PlayerController : MonoBehaviour
 
     public bool isDead = false;
     public bool enableMovement = true;
+    public bool canJump = true;
+    public int maxCoyoteFrames = 3;
+    private int coyoteFrames = 0;
+    private bool isGrounded = true;
+    private bool wasGroundedLastFrame = true;
+    private bool jumpUsed = false;
 
     public bool isOnMovingPlatform = false;
     private Rigidbody2D movingPlatformRb;
@@ -50,26 +56,98 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        CycleGroundedState();
         float moveInput = 0f;
+        bool wantsToJump = false;
         if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && enableMovement) moveInput = 1f;
         if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && enableMovement) moveInput = -1f;
-        if (isGrappling)
-        {
-            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement)
-                if (grappleLength < grappleMaxLength * 1.25f)
-                    grappleLength += 0.01f;
-            if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow)) && enableMovement)
-                if (grappleLength > 0.01f)
-                    grappleLength -= 0.01f;
-        }
-        else
+        if (!isGrappling)
         {
             if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement && oneWayPlatform)
                 StartCoroutine(DisableCollision());
-            if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)) && IsGrounded() && enableMovement)
-                rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)) && enableMovement)
+                wantsToJump = true;
+            else
+                wantsToJump = false;
         }
 
+        DoGrapplePhysics();
+        HandleJump(wantsToJump);
+
+        
+        if (moveInput > 0 && !isFacingRight) Flip();
+        else if (moveInput < 0 && isFacingRight) Flip();
+
+        isRunning = moveInput != 0;
+
+
+        if (isGrappling)
+        {
+            rigidBody.linearVelocity =
+                new Vector2(rigidBody.linearVelocity.x + moveInput * 0.005f, rigidBody.linearVelocity.y);
+        }
+        else
+        {
+            rigidBody.linearVelocity =
+                new Vector2(moveInput * moveSpeed + (isOnMovingPlatform ? movingPlatformRb.linearVelocity.x : 0),
+                    rigidBody.linearVelocity.y);
+        }
+
+
+        animator.SetBool("isGrounded", IsGrounded());
+        animator.SetBool("isRunning", isRunning);
+        animator.SetBool("isFalling", rigidBody.linearVelocity.y < -0.1f && !isOnMovingPlatform);
+    }
+
+    private void HandleJump(bool wantsToJump)
+    {
+        if (isGrounded)
+        {
+            coyoteFrames = maxCoyoteFrames;
+            if (rigidBody.linearVelocity.y <= 0.1f)
+                jumpUsed = false;
+        }
+        else
+        {
+            coyoteFrames--;
+        }
+
+        if (!wantsToJump)
+        {
+            return;
+        }
+
+        if (jumpUsed || coyoteFrames <= 0)
+        {
+            return;
+        }
+
+        jumpUsed = true;
+        Debug.Log(coyoteFrames);
+        Jump();
+    }
+
+    private void Jump() {
+        // rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        rigidBody.linearVelocityY = jumpForce;
+    }
+    
+
+    private void CycleGroundedState()
+    {
+        wasGroundedLastFrame = isGrounded;
+        isGrounded = IsGrounded();
+    }
+
+    private void DoGrapplePhysics()
+    {
+        if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement)
+            if (grappleLength < grappleMaxLength * 1.25f)
+                grappleLength += 0.01f;
+        if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow)) && enableMovement)
+            if (grappleLength > 0.01f)
+                grappleLength -= 0.01f;
+        
         if (Input.GetMouseButtonDown(0) && enableMovement)
         {
             RaycastHit2D hit = Physics2D.Raycast(
@@ -114,24 +192,7 @@ public class PlayerController : MonoBehaviour
             rope.SetPosition(1, transform.position);
         }
 
-        if (moveInput > 0 && !isFacingRight) Flip();
-        else if (moveInput < 0 && isFacingRight) Flip();
-
-        isRunning = moveInput != 0;
-
-
-        if (isGrappling)
-            rigidBody.linearVelocity =
-                new Vector2(rigidBody.linearVelocity.x + moveInput * 0.005f, rigidBody.linearVelocity.y);
-        else
-            rigidBody.linearVelocity =
-                new Vector2(moveInput * moveSpeed + (isOnMovingPlatform ? movingPlatformRb.linearVelocity.x : 0),
-                    rigidBody.linearVelocity.y);
-
-
-        animator.SetBool("isGrounded", IsGrounded());
-        animator.SetBool("isRunning", isRunning);
-        animator.SetBool("isFalling", rigidBody.linearVelocity.y < -0.1f && !isOnMovingPlatform);
+        return;
     }
 
     bool IsGrounded()
