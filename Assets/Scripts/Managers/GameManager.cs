@@ -13,7 +13,7 @@ public enum GameState
     [InspectorName("Pause")] PAUSE_MENU,
     [InspectorName("Options")] SETTINGS,
 
-    [InspectorName("Level completed (either successfully or failed)")]
+    [InspectorName("Level completed (either successfully)")]
     LEVEL_COMPLETED
 }
 
@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
     [Header("UI References")] public Canvas inGameCanvas;
     public Canvas pauseMenuCanvas;
     public Canvas settingsCanvas;
+    public Canvas endingCanvas;
     public TMP_Text qualityText;
     public TMP_Text timerText;
     public TMP_Text pointsText;
@@ -35,8 +36,10 @@ public class GameManager : MonoBehaviour
 
     public GameObject[] hearts;
     private int lives;
-    private float currentTime = 0;
-    private int points;
+
+    [Header("Score System")] public float timeToComplete = 100;
+    public float currentTime = 0;
+    public int points;
 
     [Header("Cursor Manager")] public CursorManager cursorManager;
 
@@ -47,6 +50,7 @@ public class GameManager : MonoBehaviour
 
     private Vector2 lastMinXandY;
     private Vector2 lastMaxXandY;
+    private bool runTime = false;
 
     private void Awake()
     {
@@ -83,6 +87,8 @@ public class GameManager : MonoBehaviour
             shakeSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
             shakeSlider.onValueChanged.AddListener(v => ShakeIntensity = v);
         }
+
+        runTime = true;
     }
 
     // Update is called once per frame
@@ -96,7 +102,8 @@ public class GameManager : MonoBehaviour
                 PauseMenu();
         }
 
-        tickTime();
+        if (runTime)
+            tickTime();
     }
 
     void tickTime()
@@ -160,6 +167,7 @@ public class GameManager : MonoBehaviour
         inGameCanvas.enabled = currentGameState == GameState.GAME;
         pauseMenuCanvas.enabled = currentGameState == GameState.PAUSE_MENU;
         settingsCanvas.enabled = currentGameState == GameState.SETTINGS;
+        endingCanvas.enabled = currentGameState == GameState.LEVEL_COMPLETED;
     }
 
     public void PauseMenu()
@@ -176,6 +184,12 @@ public class GameManager : MonoBehaviour
         SetGameState(GameState.GAME);
         if (!DialogueManager.instance || !DialogueManager.instance.IsActive)
             Time.timeScale = 1;
+    }
+
+    public void LevelComplete()
+    {
+        SetGameState(GameState.LEVEL_COMPLETED);
+        runTime = false;
     }
 
     public void UpdateSpawnPoint(Vector3 newPosition)
