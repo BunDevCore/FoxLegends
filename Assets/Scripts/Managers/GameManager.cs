@@ -36,8 +36,10 @@ public class GameManager : MonoBehaviour
 
     public GameObject[] hearts;
     private int lives;
-    private float currentTime = 0;
-    private int points;
+
+    [Header("Score System")] public float timeToComplete = 100;
+    public float currentTime = 0;
+    public int points;
 
     [Header("Cursor Manager")] public CursorManager cursorManager;
 
