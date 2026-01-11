@@ -12,6 +12,10 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private GameObject explosionPrefab;
     private Animator animator;
     [SerializeField] private CameraFollow mCameraFollow;
+    
+    [Header("Audio Settings")]
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip deathSound;
 
     void Awake()
     {
@@ -19,6 +23,7 @@ public class EnemyController : MonoBehaviour
         box = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
         mCameraFollow = Camera.main?.GetComponent<CameraFollow>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     IEnumerator KillOnAnimationEnd()
@@ -53,6 +58,12 @@ public class EnemyController : MonoBehaviour
                 GameManager.instance.AddPoints(5);
                 playerRb.linearVelocityY += enemyBounceVelocity;
                 if (playerRb.linearVelocityY > maxBounceVelocity) playerRb.linearVelocityY = maxBounceVelocity;
+                if (audioSource != null && deathSound != null)
+                {
+                    audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                    audioSource.PlayOneShot(deathSound, AudioListener.volume);
+                    audioSource.pitch = 1f;
+                }
                 StartCoroutine(KillOnAnimationEnd());
             }
             else
