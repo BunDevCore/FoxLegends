@@ -144,14 +144,15 @@ public class GameManager : MonoBehaviour
 
     public void PauseMenu()
     {
-        cursorManager.ShowCursor();
+        // cursorManager.ShowCursor();
+        cursorManager.ResetCursor();
         SetGameState(GameState.PAUSE_MENU);
         Time.timeScale = 0;
     }
 
     public void InGame()
     {
-        cursorManager.HideAndResetCursor();
+        // cursorManager.HideAndResetCursor();
         SetGameState(GameState.GAME);
         if (!DialogueManager.instance || !DialogueManager.instance.IsActive)
             Time.timeScale = 1;
