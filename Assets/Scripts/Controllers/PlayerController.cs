@@ -268,18 +268,17 @@ public class PlayerController : MonoBehaviour
             rigidBody.gravityScale = 1.5f;
         }
 
-        // if (col.CompareTag("LevelExit"))
-        // {
-        //     if (GameManager.instance.keysCompleted)
-        //     {
-        //         GameManager.instance.LevelCompleted();
-        //         Debug.Log("lewel complete");
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("idź tam klucze zbierać a nie się wygłupiasz");
-        //     }
-        // }
+        if (col.CompareTag("Heart"))
+        {
+            GameManager.instance.AddLives(1);
+            Destroy(col.gameObject);
+        }
+
+        if (col.CompareTag("Bonus"))
+        {
+            GameManager.instance.AddPoints(2);
+            Destroy(col.gameObject);
+        }
 
         if (col.CompareTag("Killzone"))
         {
