@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using JetBrains.Annotations;
 using UnityStandardAssets._2D;
 
 public enum GameState
@@ -61,17 +62,23 @@ public class GameManager : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
             currentSpawnPoint = player.transform.position;
-        mCameraFollow = Camera.main.GetComponent<CameraFollow>();
-        lastMinXandY = mCameraFollow.minXAndY;
-        lastMaxXandY = mCameraFollow.maxXAndY;
+        mCameraFollow = Camera.main?.GetComponent<CameraFollow>();
+        lastMinXandY = mCameraFollow?.minXAndY ?? Vector2.zero;
+        lastMaxXandY = mCameraFollow?.maxXAndY ?? Vector2.zero;
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
-        lives = 3;
-        soundSlider.value = AudioListener.volume;
-        soundSlider.onValueChanged.AddListener(v => AudioListener.volume = v);
-        shakeSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
-        shakeSlider.onValueChanged.AddListener(v => ShakeIntensity = v);
+        lives = 5;
         UpdateHeartsUI();
+        if (soundSlider)
+        {
+            soundSlider.value = AudioListener.volume;
+            soundSlider.onValueChanged.AddListener(v => AudioListener.volume = v);
+        }
+        if (shakeSlider)
+        {
+            shakeSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+            shakeSlider.onValueChanged.AddListener(v => ShakeIntensity = v);
+        }
     }
 
     // Update is called once per frame
@@ -143,12 +150,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void SetShakeIntensity(float intensity)
-    {
-        Debug.Log("intensity: " + intensity);
-        ShakeIntensity = intensity;
-    }
-
     void SetGameState(GameState newGameState)
     {
         currentGameState = newGameState;
@@ -203,12 +204,10 @@ public class GameManager : MonoBehaviour
 
     private void UpdateHeartsUI()
     {
+        if (hearts == null || hearts.Length == 0) return;
         for (int i = 0; i < hearts.Length; i++)
         {
-            if (i < lives)
-                hearts[i].SetActive(true);
-            else
-                hearts[i].SetActive(false);
+            hearts[i].SetActive(i < lives);
         }
     }
 
