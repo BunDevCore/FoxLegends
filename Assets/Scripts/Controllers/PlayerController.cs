@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -18,12 +19,17 @@ public class PlayerController : MonoBehaviour
 
     public bool isDead = false;
     public bool enableMovement = true;
-    public bool canJump = true;
     public int maxCoyoteFrames = 3;
     private int coyoteFrames = 0;
+    public int maxJumpHoldFrames = 20;
+    public int jumpHoldFrames = 0;
+    public float jumpHoldFalloffExp = 0.99f;
+    public float rozbieg = 0.2f;
+    private bool jumpUsed = false;
+    private bool jumpHeld = false;
+    private float currentJumpForce;
     private bool isGrounded = true;
     private bool wasGroundedLastFrame = true;
-    private bool jumpUsed = false;
 
     public bool isOnMovingPlatform = false;
     private Rigidbody2D movingPlatformRb;
@@ -59,6 +65,7 @@ public class PlayerController : MonoBehaviour
         CycleGroundedState();
         float moveInput = 0f;
         bool wantsToJump = false;
+        bool wantsToHold = false;
         if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && enableMovement) moveInput = 1f;
         if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && enableMovement) moveInput = -1f;
         if (!isGrappling)
@@ -67,12 +74,12 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(DisableCollision());
             if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)) && enableMovement)
                 wantsToJump = true;
-            else
-                wantsToJump = false;
+            if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow)) && enableMovement)
+                wantsToHold = true;
         }
 
         DoGrapplePhysics();
-        HandleJump(wantsToJump);
+        HandleJump(wantsToJump, wantsToHold);
 
         
         if (moveInput > 0 && !isFacingRight) Flip();
@@ -99,37 +106,58 @@ public class PlayerController : MonoBehaviour
         animator.SetBool("isFalling", rigidBody.linearVelocity.y < -0.1f && !isOnMovingPlatform);
     }
 
-    private void HandleJump(bool wantsToJump)
+    private void HandleJump(bool wantsToJump, bool wantsToHold)
     {
         if (isGrounded)
         {
-            coyoteFrames = maxCoyoteFrames;
             if (rigidBody.linearVelocity.y <= 0.1f)
+            {
+                coyoteFrames = maxCoyoteFrames;
                 jumpUsed = false;
+                jumpHeld = false;
+                jumpHoldFrames = 0;
+            }
         }
         else
         {
             coyoteFrames--;
         }
 
-        if (!wantsToJump)
+        if (jumpUsed && jumpHeld && jumpHoldFrames < maxJumpHoldFrames)
         {
+            jumpHoldFrames++;
+            Debug.Log("jump hold frames: " + jumpHoldFrames);
+            HoldJump();
+        }
+        
+        if (!wantsToHold)
+        {
+            jumpHeld = false;
             return;
         }
 
-        if (jumpUsed || coyoteFrames <= 0)
+        if (!wantsToJump || jumpUsed || coyoteFrames <= 0)
         {
             return;
         }
 
         jumpUsed = true;
+        jumpHeld = true;
         Debug.Log(coyoteFrames);
         Jump();
     }
 
     private void Jump() {
         // rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-        rigidBody.linearVelocityY = jumpForce;
+        currentJumpForce = jumpForce;
+        var xSpeed = rigidBody.linearVelocityX - (movingPlatformRb is null ? 0 : rigidBody.linearVelocityX );
+        currentJumpForce += rozbieg * Math.Abs(xSpeed);
+        rigidBody.linearVelocityY = currentJumpForce;
+    }
+
+    private void HoldJump()
+    {
+        rigidBody.linearVelocityY = (float)(currentJumpForce * Math.Pow(jumpHoldFalloffExp, jumpHoldFrames));
     }
     
 
