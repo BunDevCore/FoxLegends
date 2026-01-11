@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
@@ -20,26 +21,24 @@ public class GameManager : MonoBehaviour
     public GameState currentGameState = GameState.PAUSE_MENU;
     public static GameManager instance;
 
-    [Header("UI References")]
-    public Canvas inGameCanvas;
+    [Header("UI References")] public Canvas inGameCanvas;
     public Canvas pauseMenuCanvas;
     public Canvas settingsCanvas;
     public TMP_Text qualityText;
     public TMP_Text timerText;
+    public Slider soundSlider;
+    public Slider shakeSlider;
 
-    [Header("Checkpoint System")]
-    public Vector3 currentSpawnPoint;
+    [Header("Checkpoint System")] public Vector3 currentSpawnPoint;
 
     public GameObject[] hearts;
     private float currentTime = 0;
     private int lives;
 
-    [Header("Cursor Manager")]
-    public CursorManager cursorManager;
+    [Header("Cursor Manager")] public CursorManager cursorManager;
 
-    
-    [Header("Fading")]
-    public Image blackoutImage;
+
+    [Header("Fading")] public Image blackoutImage;
     public float fadeSpeed = 2f;
     private CameraFollow mCameraFollow;
 
@@ -68,6 +67,10 @@ public class GameManager : MonoBehaviour
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
         lives = 3;
+        soundSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+        soundSlider.onValueChanged.AddListener(v => AudioListener.volume = v);
+        shakeSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+        shakeSlider.onValueChanged.AddListener(v => ShakeIntensity = v);
         UpdateHeartsUI();
     }
 
@@ -129,9 +132,21 @@ public class GameManager : MonoBehaviour
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
     }
 
-    public void SetVolume(float vol)
+    public static float ShakeIntensity
     {
-        AudioListener.volume = vol;
+        get => PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+        set
+        {
+            Debug.Log("value: " + value);
+            PlayerPrefs.SetFloat("ShakeIntensity", value);
+            PlayerPrefs.Save();
+        }
+    }
+
+    public void SetShakeIntensity(float intensity)
+    {
+        Debug.Log("intensity: " + intensity);
+        ShakeIntensity = intensity;
     }
 
     void SetGameState(GameState newGameState)
@@ -196,10 +211,10 @@ public class GameManager : MonoBehaviour
                 hearts[i].SetActive(false);
         }
     }
-    
+
     public IEnumerator RespawnSequence(PlayerController player)
     {
-        player.isDead = true; 
+        player.isDead = true;
         player.enableMovement = false;
         player.rigidBody.linearVelocity = Vector2.zero;
         player.rigidBody.simulated = false;
@@ -219,7 +234,7 @@ public class GameManager : MonoBehaviour
         player.animator.SetBool("isDead", false);
         yield return new WaitForSeconds(0.3f);
         mCameraFollow.enableSmoothing = true;
-        
+
         while (alpha > 0)
         {
             alpha -= Time.deltaTime * fadeSpeed;
