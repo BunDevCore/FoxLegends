@@ -58,6 +58,7 @@ public class PlayerController : MonoBehaviour
         distanceJoint.enabled = false;
         rope = GetComponent<LineRenderer>();
         rope.enabled = false;
+        isGrappling = false;
     }
 
     void Update()
@@ -172,7 +173,7 @@ public class PlayerController : MonoBehaviour
         if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement)
             if (grappleLength < grappleMaxLength * 1.25f)
                 grappleLength += 0.01f;
-        if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow)) && enableMovement)
+        if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) && enableMovement)
             if (grappleLength > 0.01f)
                 grappleLength -= 0.01f;
         
@@ -208,10 +209,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0) && enableMovement)
         {
-            rigidBody.linearDamping = 0;
-            isGrappling = false;
-            distanceJoint.enabled = false;
-            rope.enabled = false;
+            RemoveGrappling();
         }
 
         if (rope.enabled)
@@ -221,6 +219,14 @@ public class PlayerController : MonoBehaviour
         }
 
         return;
+    }
+
+    void RemoveGrappling()
+    {
+        rigidBody.linearDamping = 0;
+        isGrappling = false;
+        distanceJoint.enabled = false;
+        rope.enabled = false;
     }
 
     bool IsGrounded()
@@ -309,6 +315,7 @@ public class PlayerController : MonoBehaviour
     private void PlayerDeath()
     {
         if (isDead) return;
+        RemoveGrappling();
         animator.SetBool("isDead", true);
         GameManager.instance.AddLives(-1);
         StartCoroutine(GameManager.instance.RespawnSequence(this));
