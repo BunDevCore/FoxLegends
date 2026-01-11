@@ -49694,6 +49694,7 @@ MonoBehaviour:
   settingsCanvas: {fileID: 1068067052}
   qualityText: {fileID: 337008576}
   timerText: {fileID: 271040960}
+  pointsText: {fileID: 448380646}
   soundSlider: {fileID: 0}
   shakeSlider: {fileID: 0}
   currentSpawnPoint: {x: 0, y: 0, z: 0}
