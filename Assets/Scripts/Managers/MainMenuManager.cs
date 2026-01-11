@@ -22,7 +22,7 @@ public class MainMenuManager : MonoBehaviour
         mainMenuCanvas.enabled = true;
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
-        soundSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+        soundSlider.value = AudioListener.volume;
         soundSlider.onValueChanged.AddListener(v => AudioListener.volume = v);
         shakeSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
         shakeSlider.onValueChanged.AddListener(v => ShakeIntensity = v);

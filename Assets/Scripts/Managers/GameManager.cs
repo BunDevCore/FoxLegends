@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
         lives = 3;
-        soundSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+        soundSlider.value = AudioListener.volume;
         soundSlider.onValueChanged.AddListener(v => AudioListener.volume = v);
         shakeSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
         shakeSlider.onValueChanged.AddListener(v => ShakeIntensity = v);
