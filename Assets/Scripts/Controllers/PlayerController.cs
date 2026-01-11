@@ -51,22 +51,22 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         float moveInput = 0f;
-        if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && enableMovement) moveInput = 1f;
-        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && enableMovement) moveInput = -1f;
+        if (Input.GetKey(KeyCode.D) && enableMovement) moveInput = 1f;
+        if (Input.GetKey(KeyCode.A) && enableMovement) moveInput = -1f;
         if (isGrappling)
         {
-            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement)
+            if (Input.GetKey(KeyCode.S) && enableMovement)
                 if (grappleLength < grappleMaxLength * 1.25f)
                     grappleLength += 0.01f;
-            if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow)) && enableMovement)
+            if (Input.GetKey(KeyCode.Space) && enableMovement)
                 if (grappleLength > 0.01f)
                     grappleLength -= 0.01f;
         }
         else
         {
-            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement && oneWayPlatform)
+            if (Input.GetKey(KeyCode.S) && enableMovement && oneWayPlatform)
                 StartCoroutine(DisableCollision());
-            if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)) && IsGrounded() && enableMovement)
+            if (Input.GetKeyDown(KeyCode.Space) && IsGrounded() && enableMovement)
                 rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
 
