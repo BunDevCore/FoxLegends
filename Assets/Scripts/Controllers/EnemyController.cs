@@ -50,6 +50,7 @@ public class EnemyController : MonoBehaviour
             {
                 gameObject.SendMessage("Death");
                 mCameraFollow.Shake(.3f);
+                GameManager.instance.AddPoints(5);
                 playerRb.linearVelocityY += enemyBounceVelocity;
                 if (playerRb.linearVelocityY > maxBounceVelocity) playerRb.linearVelocityY = maxBounceVelocity;
                 StartCoroutine(KillOnAnimationEnd());

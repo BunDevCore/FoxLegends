@@ -27,14 +27,16 @@ public class GameManager : MonoBehaviour
     public Canvas settingsCanvas;
     public TMP_Text qualityText;
     public TMP_Text timerText;
+    public TMP_Text pointsText;
     public Slider soundSlider;
     public Slider shakeSlider;
 
     [Header("Checkpoint System")] public Vector3 currentSpawnPoint;
 
     public GameObject[] hearts;
-    private float currentTime = 0;
     private int lives;
+    private float currentTime = 0;
+    private int points;
 
     [Header("Cursor Manager")] public CursorManager cursorManager;
 
@@ -69,6 +71,8 @@ public class GameManager : MonoBehaviour
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
         lives = 5;
         UpdateHeartsUI();
+        points = 0;
+        UpdatePointsUI();
         if (soundSlider)
         {
             soundSlider.value = AudioListener.volume;
@@ -209,6 +213,17 @@ public class GameManager : MonoBehaviour
         {
             hearts[i].SetActive(i < lives);
         }
+    }
+
+    public void AddPoints(int newPoints)
+    {
+        points += newPoints;
+        UpdatePointsUI();
+    }
+
+    private void UpdatePointsUI()
+    {
+        pointsText.SetText($"{points:000}");
     }
 
     public IEnumerator RespawnSequence(PlayerController player)
