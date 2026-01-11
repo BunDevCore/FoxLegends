@@ -2,13 +2,17 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 
 public class MainMenuManager : MonoBehaviour
 {
+    [Header("UI References")] 
     public Canvas mainMenuCanvas;
     public Canvas settingsCanvas;
     public TMP_Text qualityText;
+    public Slider soundSlider;
+    public Slider shakeSlider;
 
     [Header("Cursor Manager")]
     public CursorManager cursorManager;
@@ -18,6 +22,10 @@ public class MainMenuManager : MonoBehaviour
         mainMenuCanvas.enabled = true;
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
+        soundSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+        soundSlider.onValueChanged.AddListener(v => AudioListener.volume = v);
+        shakeSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+        shakeSlider.onValueChanged.AddListener(v => ShakeIntensity = v);
     }
 
     public void OnStartButtonPressed() => SceneManager.LoadScene("Level1");
@@ -56,8 +64,13 @@ public class MainMenuManager : MonoBehaviour
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
     }
 
-    public void SetVolume(float vol)
+    public static float ShakeIntensity
     {
-        AudioListener.volume = vol;
+        get => PlayerPrefs.GetFloat("ShakeIntensity", 0.5f); 
+        set 
+        {
+            PlayerPrefs.SetFloat("ShakeIntensity", value);
+            PlayerPrefs.Save();
+        }
     }
 }

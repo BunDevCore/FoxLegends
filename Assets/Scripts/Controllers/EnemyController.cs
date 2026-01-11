@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityStandardAssets._2D;
 
 public class EnemyController : MonoBehaviour
 {
@@ -10,12 +11,14 @@ public class EnemyController : MonoBehaviour
     [Header("Explosion Prefab")]
     [SerializeField] private GameObject explosionPrefab;
     private Animator animator;
+    [SerializeField] private CameraFollow mCameraFollow;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         box = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
+        mCameraFollow = Camera.main?.GetComponent<CameraFollow>();
     }
 
     IEnumerator KillOnAnimationEnd()
@@ -46,6 +49,7 @@ public class EnemyController : MonoBehaviour
             if (hitNormal.y < -0.5f && playerRb.linearVelocity.y < 0.1f)
             {
                 gameObject.SendMessage("Death");
+                mCameraFollow.Shake(.3f);
                 playerRb.linearVelocityY += enemyBounceVelocity;
                 if (playerRb.linearVelocityY > maxBounceVelocity) playerRb.linearVelocityY = maxBounceVelocity;
                 StartCoroutine(KillOnAnimationEnd());

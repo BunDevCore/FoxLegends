@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace UnityStandardAssets._2D
@@ -20,6 +21,7 @@ namespace UnityStandardAssets._2D
         private Rigidbody2D mPlayerBody;
         private PlayerController mPlayerCtrl;
         private Transform mCurrentTarget;
+        private Vector3 currentShakeOffset = Vector3.zero;
 
         private void Awake()
         {
@@ -34,6 +36,32 @@ namespace UnityStandardAssets._2D
             // Na starcie celujemy w gracza
             mCurrentTarget = mPlayer;
             enableLimits = true;
+        }
+        
+        public void Shake(float timeInSeconds)
+        {
+            // Zatrzymujemy poprzednie trzęsienie, jeśli jakieś trwało
+            StopAllCoroutines(); 
+            StartCoroutine(DoShakeCoroutine(timeInSeconds));
+        }
+        
+        private IEnumerator DoShakeCoroutine(float duration)
+        {
+            float elapsed = 0f;
+            float intensity = GameManager.ShakeIntensity;
+            Debug.Log(intensity);
+            float multiplier = 0.08f; 
+
+            while (elapsed < duration)
+            {
+                float damper = 1.0f - Mathf.Clamp01(elapsed / duration);
+                float x = Random.Range(-1f, 1f) * intensity * multiplier * damper;
+                float y = Random.Range(-1f, 1f) * intensity * multiplier * damper;
+                currentShakeOffset = new Vector3(x, y, 0);
+                elapsed += Time.unscaledDeltaTime; 
+                yield return null;
+            }
+            currentShakeOffset = Vector3.zero;
         }
 
         public void SetPlace(Transform place)
@@ -97,8 +125,8 @@ namespace UnityStandardAssets._2D
                 if (isFollowingPlayer || Mathf.Abs(currentY - targetY) > yMarg)
                     finalY = Mathf.Lerp(currentY, targetY, ySmooth * Time.unscaledDeltaTime);
             }
-
-            transform.position = new Vector3(finalX, finalY, transform.position.z);
+            
+            transform.position = new Vector3(finalX, finalY, transform.position.z) + currentShakeOffset;
         }
     }
 }
