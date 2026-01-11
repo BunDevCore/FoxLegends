@@ -47,6 +47,12 @@ public class PlayerController : MonoBehaviour
     private DistanceJoint2D distanceJoint;
     private LineRenderer rope;
 
+    [Header("Audio Settings")]
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip deathSound;
+    [SerializeField] private AudioClip jumpSound;
+    [SerializeField] private AudioClip bonusSound;
+    
     void Awake()
     {
         startPosition = transform.position;
@@ -58,6 +64,7 @@ public class PlayerController : MonoBehaviour
         distanceJoint.enabled = false;
         rope = GetComponent<LineRenderer>();
         rope.enabled = false;
+        audioSource = GetComponent<AudioSource>();
         isGrappling = false;
     }
 
@@ -154,6 +161,12 @@ public class PlayerController : MonoBehaviour
         var xSpeed = rigidBody.linearVelocityX - (movingPlatformRb is null ? 0 : rigidBody.linearVelocityX );
         currentJumpForce += rozbieg * Math.Abs(xSpeed);
         rigidBody.linearVelocityY = currentJumpForce;
+        if (audioSource != null && jumpSound != null)
+        {
+            audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+            audioSource.PlayOneShot(jumpSound, AudioListener.volume);
+            audioSource.pitch = 1f;
+        }
     }
 
     private void HoldJump()
@@ -270,12 +283,24 @@ public class PlayerController : MonoBehaviour
 
         if (col.CompareTag("Heart"))
         {
+            if (audioSource != null && bonusSound != null)
+            {
+                audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                audioSource.PlayOneShot(bonusSound, AudioListener.volume);
+                audioSource.pitch = 1f;
+            }
             GameManager.instance.AddLives(1);
             Destroy(col.gameObject);
         }
 
         if (col.CompareTag("Bonus"))
         {
+            if (audioSource != null && bonusSound != null)
+            {
+                audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                audioSource.PlayOneShot(bonusSound, AudioListener.volume);
+                audioSource.pitch = 1f;
+            }
             GameManager.instance.AddPoints(2);
             Destroy(col.gameObject);
         }
@@ -317,6 +342,12 @@ public class PlayerController : MonoBehaviour
         RemoveGrappling();
         animator.SetBool("isDead", true);
         GameManager.instance.AddLives(-1);
+        if (audioSource != null && deathSound != null)
+        {
+            audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+            audioSource.PlayOneShot(deathSound, AudioListener.volume);
+            audioSource.pitch = 1f;
+        }
         StartCoroutine(GameManager.instance.RespawnSequence(this));
     }
 }
