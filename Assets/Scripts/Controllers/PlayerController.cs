@@ -173,6 +173,12 @@ public class PlayerController : MonoBehaviour
             rigidBody.gravityScale = 1.5f;
         }
 
+        if (col.CompareTag("Heart"))
+        {
+            GameManager.instance.AddLives(1);
+            Destroy(col.gameObject);
+        }
+
         if (col.CompareTag("Bonus"))
         {
             GameManager.instance.AddPoints(2);
