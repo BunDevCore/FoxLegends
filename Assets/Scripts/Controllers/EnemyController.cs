@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityStandardAssets._2D;
 
 public class EnemyController : MonoBehaviour
 {
@@ -10,12 +11,19 @@ public class EnemyController : MonoBehaviour
     [Header("Explosion Prefab")]
     [SerializeField] private GameObject explosionPrefab;
     private Animator animator;
+    [SerializeField] private CameraFollow mCameraFollow;
+    
+    [Header("Audio Settings")]
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip deathSound;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         box = GetComponent<BoxCollider2D>();
         animator = GetComponent<Animator>();
+        mCameraFollow = Camera.main?.GetComponent<CameraFollow>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     IEnumerator KillOnAnimationEnd()
@@ -46,8 +54,16 @@ public class EnemyController : MonoBehaviour
             if (hitNormal.y < -0.5f && playerRb.linearVelocity.y < 0.1f)
             {
                 gameObject.SendMessage("Death");
+                mCameraFollow.Shake(.3f);
+                GameManager.instance.AddPoints(5);
                 playerRb.linearVelocityY += enemyBounceVelocity;
                 if (playerRb.linearVelocityY > maxBounceVelocity) playerRb.linearVelocityY = maxBounceVelocity;
+                if (audioSource != null && deathSound != null)
+                {
+                    audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                    audioSource.PlayOneShot(deathSound, AudioListener.volume);
+                    audioSource.pitch = 1f;
+                }
                 StartCoroutine(KillOnAnimationEnd());
             }
             else

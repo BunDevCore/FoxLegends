@@ -44,6 +44,7 @@ public class PlatformGeneratorController : MonoBehaviour
     private void CreatePlatform()
     {
         var platform = Instantiate(platformPrefab, waypoints[0].transform.position, Quaternion.identity);
+        platform.GetComponent<SpriteRenderer>().sortingLayerName = "Platforms";
         platforms.Add(new Platform(platform, platform.GetComponent<Rigidbody2D>(), 1));
         platforms.Last().CalculateDirection(waypoints);
     }

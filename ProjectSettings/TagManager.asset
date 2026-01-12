@@ -12,6 +12,7 @@ TagManager:
   - Heart
   - MovingPlatform
   - Killzone
+  - OneWayPlatform
   layers:
   - Default
   - TransparentFX
@@ -21,7 +22,7 @@ TagManager:
   - UI
   - Ground
   - Bunny
-  - 
+  - Grapple
   - 
   - 
   - 

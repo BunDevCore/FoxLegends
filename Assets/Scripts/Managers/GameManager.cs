@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using JetBrains.Annotations;
 using UnityStandardAssets._2D;
 
 public enum GameState
@@ -11,7 +13,7 @@ public enum GameState
     [InspectorName("Pause")] PAUSE_MENU,
     [InspectorName("Options")] SETTINGS,
 
-    [InspectorName("Level completed (either successfully or failed)")]
+    [InspectorName("Level completed (either successfully)")]
     LEVEL_COMPLETED
 }
 
@@ -20,31 +22,35 @@ public class GameManager : MonoBehaviour
     public GameState currentGameState = GameState.PAUSE_MENU;
     public static GameManager instance;
 
-    [Header("UI References")]
-    public Canvas inGameCanvas;
+    [Header("UI References")] public Canvas inGameCanvas;
     public Canvas pauseMenuCanvas;
     public Canvas settingsCanvas;
+    public Canvas endingCanvas;
     public TMP_Text qualityText;
     public TMP_Text timerText;
+    public TMP_Text pointsText;
+    public Slider soundSlider;
+    public Slider shakeSlider;
 
-    [Header("Checkpoint System")]
-    public Vector3 currentSpawnPoint;
+    [Header("Checkpoint System")] public Vector3 currentSpawnPoint;
 
     public GameObject[] hearts;
-    private float currentTime = 0;
     private int lives;
 
-    [Header("Cursor Manager")]
-    public CursorManager cursorManager;
+    [Header("Score System")] public float timeToComplete = 100;
+    public float currentTime = 0;
+    public int points;
 
-    
-    [Header("Fading")]
-    public Image blackoutImage;
+    [Header("Cursor Manager")] public CursorManager cursorManager;
+
+
+    [Header("Fading")] public Image blackoutImage;
     public float fadeSpeed = 2f;
     private CameraFollow mCameraFollow;
 
     private Vector2 lastMinXandY;
     private Vector2 lastMaxXandY;
+    private bool runTime = false;
 
     private void Awake()
     {
@@ -62,13 +68,27 @@ public class GameManager : MonoBehaviour
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
             currentSpawnPoint = player.transform.position;
-        mCameraFollow = Camera.main.GetComponent<CameraFollow>();
-        lastMinXandY = mCameraFollow.minXAndY;
-        lastMaxXandY = mCameraFollow.maxXAndY;
+        mCameraFollow = Camera.main?.GetComponent<CameraFollow>();
+        lastMinXandY = mCameraFollow?.minXAndY ?? Vector2.zero;
+        lastMaxXandY = mCameraFollow?.maxXAndY ?? Vector2.zero;
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
-        lives = 3;
+        lives = 5;
         UpdateHeartsUI();
+        points = 0;
+        UpdatePointsUI();
+        if (soundSlider)
+        {
+            soundSlider.value = AudioListener.volume;
+            soundSlider.onValueChanged.AddListener(v => AudioListener.volume = v);
+        }
+        if (shakeSlider)
+        {
+            shakeSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+            shakeSlider.onValueChanged.AddListener(v => ShakeIntensity = v);
+        }
+
+        runTime = true;
     }
 
     // Update is called once per frame
@@ -82,7 +102,8 @@ public class GameManager : MonoBehaviour
                 PauseMenu();
         }
 
-        tickTime();
+        if (runTime)
+            tickTime();
     }
 
     void tickTime()
@@ -129,9 +150,15 @@ public class GameManager : MonoBehaviour
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
     }
 
-    public void SetVolume(float vol)
+    public static float ShakeIntensity
     {
-        AudioListener.volume = vol;
+        get => PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
+        set
+        {
+            Debug.Log("value: " + value);
+            PlayerPrefs.SetFloat("ShakeIntensity", value);
+            PlayerPrefs.Save();
+        }
     }
 
     void SetGameState(GameState newGameState)
@@ -140,21 +167,29 @@ public class GameManager : MonoBehaviour
         inGameCanvas.enabled = currentGameState == GameState.GAME;
         pauseMenuCanvas.enabled = currentGameState == GameState.PAUSE_MENU;
         settingsCanvas.enabled = currentGameState == GameState.SETTINGS;
+        endingCanvas.enabled = currentGameState == GameState.LEVEL_COMPLETED;
     }
 
     public void PauseMenu()
     {
-        cursorManager.ShowCursor();
+        // cursorManager.ShowCursor();
+        cursorManager.ResetCursor();
         SetGameState(GameState.PAUSE_MENU);
         Time.timeScale = 0;
     }
 
     public void InGame()
     {
-        cursorManager.HideAndResetCursor();
+        // cursorManager.HideAndResetCursor();
         SetGameState(GameState.GAME);
-        if (DialogueManager.instance && !DialogueManager.instance.IsActive)
+        if (!DialogueManager.instance || !DialogueManager.instance.IsActive)
             Time.timeScale = 1;
+    }
+
+    public void LevelComplete()
+    {
+        SetGameState(GameState.LEVEL_COMPLETED);
+        runTime = false;
     }
 
     public void UpdateSpawnPoint(Vector3 newPosition)
@@ -187,18 +222,27 @@ public class GameManager : MonoBehaviour
 
     private void UpdateHeartsUI()
     {
+        if (hearts == null || hearts.Length == 0) return;
         for (int i = 0; i < hearts.Length; i++)
         {
-            if (i < lives)
-                hearts[i].SetActive(true);
-            else
-                hearts[i].SetActive(false);
+            hearts[i].SetActive(i < lives);
         }
     }
-    
+
+    public void AddPoints(int newPoints)
+    {
+        points += newPoints;
+        UpdatePointsUI();
+    }
+
+    private void UpdatePointsUI()
+    {
+        pointsText.SetText($"{points:000}");
+    }
+
     public IEnumerator RespawnSequence(PlayerController player)
     {
-        player.isDead = true; 
+        player.isDead = true;
         player.enableMovement = false;
         player.rigidBody.linearVelocity = Vector2.zero;
         player.rigidBody.simulated = false;
@@ -218,7 +262,7 @@ public class GameManager : MonoBehaviour
         player.animator.SetBool("isDead", false);
         yield return new WaitForSeconds(0.3f);
         mCameraFollow.enableSmoothing = true;
-        
+
         while (alpha > 0)
         {
             alpha -= Time.deltaTime * fadeSpeed;
