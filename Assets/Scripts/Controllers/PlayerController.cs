@@ -99,7 +99,7 @@ public class PlayerController : MonoBehaviour
         if (isGrappling)
         {
             rigidBody.linearVelocity =
-                new Vector2(rigidBody.linearVelocity.x + moveInput * 0.005f, rigidBody.linearVelocity.y);
+                new Vector2(rigidBody.linearVelocity.x + moveInput * .05f, rigidBody.linearVelocity.y);
         }
         else
         {
