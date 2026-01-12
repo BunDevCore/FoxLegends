@@ -46,7 +46,7 @@ public class FerrisWheelController : MonoBehaviour
     {
         for (int i = 0; i < numberOfPlatforms; i++)
         {
-            var moveDirection = (Vector2)(platforms[i].transform.position - transform.position).normalized;
+            var moveDirection = (positions[i] - (Vector2)transform.position).normalized;
             moveDirection = new Vector2(-moveDirection.y, moveDirection.x);
             Debug.DrawRay(platforms[i].transform.position, moveDirection, Color.red);
             rb[i].linearVelocity = moveDirection * rotationSpeed;
