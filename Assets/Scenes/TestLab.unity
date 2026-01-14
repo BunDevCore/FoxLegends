@@ -12933,8 +12933,12 @@ MonoBehaviour:
   inGameCanvas: {fileID: 1548549546}
   pauseMenuCanvas: {fileID: 1737140208}
   settingsCanvas: {fileID: 180830941}
+  endingCanvas: {fileID: 0}
   qualityText: {fileID: 304295418}
   timerText: {fileID: 1673697903}
+  pointsText: {fileID: 0}
+  soundSlider: {fileID: 0}
+  shakeSlider: {fileID: 0}
   currentSpawnPoint: {x: 0, y: 0, z: 0}
   hearts:
   - {fileID: 2081955195}
@@ -12947,6 +12951,9 @@ MonoBehaviour:
   - {fileID: 1780965438}
   - {fileID: 1919204198}
   - {fileID: 1572108837}
+  timeToComplete: 100
+  currentTime: 0
+  points: 0
   cursorManager: {fileID: 1791557130}
   blackoutImage: {fileID: 1726218909}
   fadeSpeed: 2

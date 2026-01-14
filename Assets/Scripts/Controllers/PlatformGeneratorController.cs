@@ -18,11 +18,13 @@ public class PlatformGeneratorController : MonoBehaviour
 
         // public Vector2 moveDirection;
         public float elapsedTime = 0;
+        public Vector2 velocity;
 
-        public Platform(GameObject platformObject)
+        public Platform(GameObject platformObject, Vector2 velocity)
         {
             this.platformObject = platformObject;
             currentWaypointIndex = 0;
+            this.velocity = velocity;
         }
     }
 
@@ -39,7 +41,8 @@ public class PlatformGeneratorController : MonoBehaviour
     {
         var platform = Instantiate(platformPrefab, waypoints[0].transform.position, Quaternion.identity);
         platform.GetComponent<SpriteRenderer>().sortingLayerName = "Platforms";
-        platforms.Add(new Platform(platform));
+        Vector2 velocity = (waypoints[1].transform.position - waypoints[0].transform.position).normalized * speed;
+        platforms.Add(new Platform(platform, velocity));
     }
 
     private void Start()
@@ -73,7 +76,13 @@ public class PlatformGeneratorController : MonoBehaviour
                     Destroy(platforms[i].platformObject);
                     platforms.RemoveAt(i);
                 }
+
+                platforms[i].velocity =
+                    (waypoints[(platforms[i].currentWaypointIndex + 1) % waypoints.Length].transform.position -
+                     waypoints[platforms[i].currentWaypointIndex].transform.position).normalized * speed;
             }
+
+            Debug.DrawRay(platforms[i].platformObject.transform.position, platforms[i].velocity, Color.green);
         }
 
         if (Time.time - lastSpawnTime >= interval)

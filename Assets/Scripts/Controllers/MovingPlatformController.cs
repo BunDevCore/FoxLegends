@@ -18,15 +18,16 @@ public class MovingPlatformController : MonoBehaviour
 
     [SerializeField] private float speed = 1f;
 
-    public float elapsedTime;
-
-    private Rigidbody2D rb;
+    private float elapsedTime;
+    public Vector2 velocity;
 
     private void Awake()
     {
         platform = Instantiate(platformPrefab, waypoints[currentWaypointIndex].transform.position, Quaternion.identity);
         platform.GetComponent<SpriteRenderer>().sortingLayerName = "Platforms";
-        // rb = platform.GetComponent<Rigidbody2D>();
+        velocity =
+            (waypoints[(currentWaypointIndex + 1) % waypoints.Length].transform.position -
+             waypoints[currentWaypointIndex].transform.position).normalized * speed;
     }
 
     // Update is called once per frame
@@ -48,6 +49,12 @@ public class MovingPlatformController : MonoBehaviour
         {
             elapsedTime = 0;
             currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+            velocity =
+                (waypoints[(currentWaypointIndex + 1) % waypoints.Length].transform.position -
+                 waypoints[currentWaypointIndex].transform.position).normalized * speed;
         }
+        
+        Debug.DrawRay(platform.transform.position, velocity, Color.green);
+        
     }
 }
