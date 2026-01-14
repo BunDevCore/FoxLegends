@@ -40,7 +40,6 @@ public class PlatformGeneratorController : MonoBehaviour
     private void CreatePlatform()
     {
         var platform = Instantiate(platformPrefab, waypoints[0].transform.position, Quaternion.identity);
-        platform.GetComponent<SpriteRenderer>().sortingLayerName = "Platforms";
         Vector2 velocity = (waypoints[1].transform.position - waypoints[0].transform.position).normalized * speed;
         platforms.Add(new Platform(platform, velocity));
     }
@@ -75,6 +74,7 @@ public class PlatformGeneratorController : MonoBehaviour
                 {
                     Destroy(platforms[i].platformObject);
                     platforms.RemoveAt(i);
+                    continue;
                 }
 
                 platforms[i].velocity =

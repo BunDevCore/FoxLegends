@@ -24,7 +24,6 @@ public class MovingPlatformController : MonoBehaviour
     private void Awake()
     {
         platform = Instantiate(platformPrefab, waypoints[currentWaypointIndex].transform.position, Quaternion.identity);
-        platform.GetComponent<SpriteRenderer>().sortingLayerName = "Platforms";
         velocity =
             (waypoints[(currentWaypointIndex + 1) % waypoints.Length].transform.position -
              waypoints[currentWaypointIndex].transform.position).normalized * speed;
