@@ -108,6 +108,17 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(DisableCollision());
         }
         
+        if (isGrappling)
+        {
+            rigidBody.linearVelocity =
+                new Vector2(rigidBody.linearVelocity.x + queuedMovement.directionalInput * .05f, rigidBody.linearVelocity.y);
+        }
+        else
+        {
+            rigidBody.linearVelocity = new Vector2(queuedMovement.directionalInput * moveSpeed, rigidBody.linearVelocity.y);
+        }
+
+        
         queuedMovement.Reset();
     }
 
@@ -156,16 +167,6 @@ public class PlayerController : MonoBehaviour
         else if (queuedMovement.directionalInput < 0 && isFacingRight) Flip();
 
         isRunning = queuedMovement.directionalInput != 0;
-
-        if (isGrappling)
-        {
-            rigidBody.linearVelocity =
-                new Vector2(rigidBody.linearVelocity.x + queuedMovement.directionalInput * .05f, rigidBody.linearVelocity.y);
-        }
-        else
-        {
-            rigidBody.linearVelocity = new Vector2(queuedMovement.directionalInput * moveSpeed, rigidBody.linearVelocity.y);
-        }
 
         if (rope.enabled)
         {
