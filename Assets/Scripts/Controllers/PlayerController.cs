@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -65,7 +64,9 @@ public class PlayerController : MonoBehaviour
     [Header("Grappling hook settings")] public bool isGrappling = false;
     [SerializeField] private LayerMask grappleLayer;
 
-    [SerializeField] private float grappleMaxLength = 1f;
+    [SerializeField] private float grappleGrabMaxLength = 1f;
+    [SerializeField] private float grappleMaxLength = 1.5f;
+    [SerializeField] private float swingAcceleration = 0.01f;
     [SerializeField] private float dampingForce = 0.1f;
     private float grappleLength;
     private Vector3 grapplePoint;
@@ -76,7 +77,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip deathSound;
     [SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip bonusSound;
-    
+
     private GameObject originalParent;
     private QueuedMovementInput queuedMovement = new();
 
@@ -93,7 +94,7 @@ public class PlayerController : MonoBehaviour
         rope.enabled = false;
         audioSource = GetComponent<AudioSource>();
         isGrappling = false;
-        
+
         originalParent = gameObject.transform.parent.gameObject;
     }
 
@@ -107,7 +108,18 @@ public class PlayerController : MonoBehaviour
             if (queuedMovement.phaseDown)
                 StartCoroutine(DisableCollision());
         }
-        
+
+        if (isGrappling)
+        {
+            rigidBody.linearVelocity =
+                new Vector2(rigidBody.linearVelocity.x + queuedMovement.directionalInput * .05f, rigidBody.linearVelocity.y);
+        }
+        else
+        {
+            rigidBody.linearVelocity = new Vector2(queuedMovement.directionalInput * moveSpeed, rigidBody.linearVelocity.y);
+        }
+
+
         queuedMovement.Reset();
     }
 
@@ -122,13 +134,13 @@ public class PlayerController : MonoBehaviour
             queuedMovement.grappleDown = false;
             queuedMovement.grappleUp = true;
         }
-        
+
         if (Input.GetMouseButtonDown(0))
         {
             queuedMovement.grappleDown = true;
             queuedMovement.grappleUp = false;
         }
-        
+
         if (!isGrappling)
         {
             if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement && oneWayPlatform)
@@ -150,22 +162,12 @@ public class PlayerController : MonoBehaviour
                 queuedMovement.grappleContract = true;
             }
         }
-        
+
 
         if (queuedMovement.directionalInput > 0 && !isFacingRight) Flip();
         else if (queuedMovement.directionalInput < 0 && isFacingRight) Flip();
 
         isRunning = queuedMovement.directionalInput != 0;
-
-        if (isGrappling)
-        {
-            rigidBody.linearVelocity =
-                new Vector2(rigidBody.linearVelocity.x + queuedMovement.directionalInput * .05f, rigidBody.linearVelocity.y);
-        }
-        else
-        {
-            rigidBody.linearVelocity = new Vector2(queuedMovement.directionalInput * moveSpeed, rigidBody.linearVelocity.y);
-        }
 
         if (rope.enabled)
         {
@@ -250,11 +252,11 @@ public class PlayerController : MonoBehaviour
     private void DoGrapplePhysics()
     {
         if (queuedMovement.grappleExtend)
-            if (grappleLength < grappleMaxLength * 1.25f)
-                grappleLength += 0.01f;
+            if (grappleLength < grappleMaxLength)
+                grappleLength += swingAcceleration;
         if (queuedMovement.grappleContract)
             if (grappleLength > 0.01f)
-                grappleLength -= 0.01f;
+                grappleLength -= swingAcceleration;
 
         if (queuedMovement.grappleDown && enableMovement)
         {
@@ -264,10 +266,11 @@ public class PlayerController : MonoBehaviour
                 Mathf.Infinity,
                 grappleLayer
             );
+
             if (hit.collider)
             {
                 float dist = Vector2.Distance(transform.position, hit.point);
-                if (dist > grappleMaxLength) return;
+                if (dist > grappleGrabMaxLength) return;
 
                 rigidBody.linearDamping = dampingForce;
 
@@ -290,6 +293,7 @@ public class PlayerController : MonoBehaviour
         {
             RemoveGrappling();
         }
+
         return;
     }
 
