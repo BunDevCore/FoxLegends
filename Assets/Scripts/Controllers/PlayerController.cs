@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
     private bool wasGroundedLastFrame = true;
 
     public bool isOnMovingPlatform = false;
-    private Rigidbody2D movingPlatformRb;
+    private GameObject movingPlatform;
 
     private GameObject oneWayPlatform;
     private BoxCollider2D playerCollider;
@@ -47,12 +47,11 @@ public class PlayerController : MonoBehaviour
     private DistanceJoint2D distanceJoint;
     private LineRenderer rope;
 
-    [Header("Audio Settings")]
-    private AudioSource audioSource;
+    [Header("Audio Settings")] private AudioSource audioSource;
     [SerializeField] private AudioClip deathSound;
     [SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip bonusSound;
-    
+
     void Awake()
     {
         startPosition = transform.position;
@@ -89,7 +88,7 @@ public class PlayerController : MonoBehaviour
         DoGrapplePhysics();
         HandleJump(wantsToJump, wantsToHold);
 
-        
+
         if (moveInput > 0 && !isFacingRight) Flip();
         else if (moveInput < 0 && isFacingRight) Flip();
 
@@ -103,9 +102,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            rigidBody.linearVelocity =
-                new Vector2(moveInput * moveSpeed + (isOnMovingPlatform ? movingPlatformRb.linearVelocity.x : 0),
-                    rigidBody.linearVelocity.y);
+            rigidBody.linearVelocity = new Vector2(moveInput * moveSpeed, rigidBody.linearVelocity.y);
         }
 
 
@@ -137,7 +134,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("jump hold frames: " + jumpHoldFrames);
             HoldJump();
         }
-        
+
         if (!wantsToHold)
         {
             jumpHeld = false;
@@ -155,10 +152,10 @@ public class PlayerController : MonoBehaviour
         Jump();
     }
 
-    private void Jump() {
-        // rigidBody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+    private void Jump()
+    {
         currentJumpForce = jumpForce;
-        var xSpeed = rigidBody.linearVelocityX - (movingPlatformRb is null ? 0 : rigidBody.linearVelocityX );
+        var xSpeed = rigidBody.linearVelocityX - (movingPlatform is null ? 0 : rigidBody.linearVelocityX);
         currentJumpForce += rozbieg * Math.Abs(xSpeed);
         rigidBody.linearVelocityY = currentJumpForce;
         if (audioSource != null && jumpSound != null)
@@ -173,7 +170,7 @@ public class PlayerController : MonoBehaviour
     {
         rigidBody.linearVelocityY = (float)(currentJumpForce * Math.Pow(jumpHoldFalloffExp, jumpHoldFrames));
     }
-    
+
 
     private void CycleGroundedState()
     {
@@ -189,7 +186,7 @@ public class PlayerController : MonoBehaviour
         if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) && enableMovement)
             if (grappleLength > 0.01f)
                 grappleLength -= 0.01f;
-        
+
         if (Input.GetMouseButtonDown(0) && enableMovement)
         {
             RaycastHit2D hit = Physics2D.Raycast(
@@ -267,7 +264,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("MovingPlatform"))
         {
             isOnMovingPlatform = false;
-            movingPlatformRb = null;
+            gameObject.transform.SetParent(null);
             rigidBody.gravityScale = 1;
         }
     }
@@ -277,7 +274,7 @@ public class PlayerController : MonoBehaviour
         if (col.CompareTag("MovingPlatform"))
         {
             isOnMovingPlatform = true;
-            movingPlatformRb = col.GetComponent<Rigidbody2D>();
+            gameObject.transform.SetParent(col.transform);
             rigidBody.gravityScale = 1.5f;
         }
 
@@ -289,6 +286,7 @@ public class PlayerController : MonoBehaviour
                 audioSource.PlayOneShot(bonusSound, AudioListener.volume);
                 audioSource.pitch = 1f;
             }
+
             GameManager.instance.AddLives(1);
             Destroy(col.gameObject);
         }
@@ -301,6 +299,7 @@ public class PlayerController : MonoBehaviour
                 audioSource.PlayOneShot(bonusSound, AudioListener.volume);
                 audioSource.pitch = 1f;
             }
+
             GameManager.instance.AddPoints(2);
             Destroy(col.gameObject);
         }
@@ -348,6 +347,7 @@ public class PlayerController : MonoBehaviour
             audioSource.PlayOneShot(deathSound, AudioListener.volume);
             audioSource.pitch = 1f;
         }
+
         StartCoroutine(GameManager.instance.RespawnSequence(this));
     }
 }

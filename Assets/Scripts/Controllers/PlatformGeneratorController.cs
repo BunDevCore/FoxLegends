@@ -2,6 +2,7 @@
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlatformGeneratorController : MonoBehaviour
 {
@@ -37,6 +38,8 @@ public class PlatformGeneratorController : MonoBehaviour
 
     private float lastSpawnTime;
 
+    [Header("Timer")] [SerializeField] private Image radialFillImage;
+
     private void CreatePlatform()
     {
         var platform = Instantiate(platformPrefab, waypoints[0].transform.position, Quaternion.identity);
@@ -52,6 +55,7 @@ public class PlatformGeneratorController : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        UpdateRadialProgressCircle();
         for (int i = platforms.Count - 1; i >= 0; i--)
         {
             platforms[i].elapsedTime += Time.deltaTime;
@@ -90,5 +94,10 @@ public class PlatformGeneratorController : MonoBehaviour
             CreatePlatform();
             lastSpawnTime = Time.time;
         }
+    }
+
+    private void UpdateRadialProgressCircle()
+    {
+        radialFillImage.fillAmount = (Time.time - lastSpawnTime) / interval;
     }
 }
