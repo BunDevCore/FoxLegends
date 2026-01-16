@@ -51,6 +51,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip deathSound;
     [SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip bonusSound;
+    
+    private GameObject originalParent;
 
     void Awake()
     {
@@ -65,6 +67,8 @@ public class PlayerController : MonoBehaviour
         rope.enabled = false;
         audioSource = GetComponent<AudioSource>();
         isGrappling = false;
+        
+        originalParent = gameObject.transform.parent.gameObject;
     }
 
     void Update()
@@ -264,7 +268,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("MovingPlatform"))
         {
             isOnMovingPlatform = false;
-            gameObject.transform.SetParent(null);
+            gameObject.transform.SetParent(originalParent.transform);
             rigidBody.gravityScale = 1;
         }
     }
