@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -57,11 +58,19 @@ public class FerrisWheelController : MonoBehaviour
             platforms[i].elapsedTime += Time.deltaTime;
             float dist = Vector2.Distance(positions[platforms[i].currentWaypointIndex],
                 positions[(platforms[i].currentWaypointIndex + 1) % positions.Length]);
-            float percentageComplete = platforms[i].elapsedTime * rotationSpeed / dist;
+            float percentageComplete = platforms[i].elapsedTime * Math.Abs(rotationSpeed) / dist;
 
             platforms[i].platformObject.transform.position = Vector3.Slerp(
-                (Vector3)positions[platforms[i].currentWaypointIndex] - transform.position,
-                (Vector3)positions[(platforms[i].currentWaypointIndex + 1) % positions.Length] - transform.position,
+                (Vector3)positions[
+                    rotationSpeed > 0
+                        ? platforms[i].currentWaypointIndex
+                        : (platforms[i].currentWaypointIndex + 1) % positions.Length
+                ] - transform.position,
+                (Vector3)positions[
+                    rotationSpeed > 0
+                        ? (platforms[i].currentWaypointIndex + 1) % positions.Length
+                        : platforms[i].currentWaypointIndex
+                ] - transform.position,
                 percentageComplete
             ) + transform.position;
 
