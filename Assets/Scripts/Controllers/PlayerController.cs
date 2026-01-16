@@ -1,7 +1,32 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+
+public class QueuedMovementInput
+{
+    public bool jump;
+    public bool hold;
+    public float directionalInput;
+    public bool phaseDown;
+    public bool grappleExtend;
+    public bool grappleContract;
+    public bool grappleDown;
+    public bool grappleUp;
+
+    public void Reset()
+    {
+        jump = false;
+        hold = false;
+        directionalInput = 0f;
+        phaseDown = false;
+        grappleExtend = false;
+        grappleContract = false;
+        grappleUp = false;
+        grappleDown = false;
+    }
+}
 
 public class PlayerController : MonoBehaviour
 {
@@ -53,6 +78,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip bonusSound;
     
     private GameObject originalParent;
+    private QueuedMovementInput queuedMovement = new();
 
     void Awake()
     {
@@ -71,52 +97,91 @@ public class PlayerController : MonoBehaviour
         originalParent = gameObject.transform.parent.gameObject;
     }
 
+    private void FixedUpdate()
+    {
+        HandleJump();
+        DoGrapplePhysics();
+
+        if (!isGrappling)
+        {
+            if (queuedMovement.phaseDown)
+                StartCoroutine(DisableCollision());
+        }
+        
+        queuedMovement.Reset();
+    }
+
     void Update()
     {
         CycleGroundedState();
-        float moveInput = 0f;
-        bool wantsToJump = false;
-        bool wantsToHold = false;
-        if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && enableMovement) moveInput = 1f;
-        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && enableMovement) moveInput = -1f;
+        if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && enableMovement) queuedMovement.directionalInput = 1f;
+        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && enableMovement) queuedMovement.directionalInput = -1f;
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            queuedMovement.grappleDown = false;
+            queuedMovement.grappleUp = true;
+        }
+        
+        if (Input.GetMouseButtonDown(0))
+        {
+            queuedMovement.grappleDown = true;
+            queuedMovement.grappleUp = false;
+        }
+        
         if (!isGrappling)
         {
             if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement && oneWayPlatform)
-                StartCoroutine(DisableCollision());
+                queuedMovement.phaseDown = true;
             if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)) && enableMovement)
-                wantsToJump = true;
+                queuedMovement.jump = true;
             if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow)) && enableMovement)
-                wantsToHold = true;
+                queuedMovement.hold = true;
         }
+        else
+        {
+            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement)
+            {
+                queuedMovement.grappleExtend = true;
+            }
 
-        DoGrapplePhysics();
-        HandleJump(wantsToJump, wantsToHold);
+            if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) && enableMovement)
+            {
+                queuedMovement.grappleContract = true;
+            }
+        }
+        
 
+        if (queuedMovement.directionalInput > 0 && !isFacingRight) Flip();
+        else if (queuedMovement.directionalInput < 0 && isFacingRight) Flip();
 
-        if (moveInput > 0 && !isFacingRight) Flip();
-        else if (moveInput < 0 && isFacingRight) Flip();
-
-        isRunning = moveInput != 0;
-
+        isRunning = queuedMovement.directionalInput != 0;
 
         if (isGrappling)
         {
             rigidBody.linearVelocity =
-                new Vector2(rigidBody.linearVelocity.x + moveInput * .05f, rigidBody.linearVelocity.y);
+                new Vector2(rigidBody.linearVelocity.x + queuedMovement.directionalInput * .05f, rigidBody.linearVelocity.y);
         }
         else
         {
-            rigidBody.linearVelocity = new Vector2(moveInput * moveSpeed, rigidBody.linearVelocity.y);
+            rigidBody.linearVelocity = new Vector2(queuedMovement.directionalInput * moveSpeed, rigidBody.linearVelocity.y);
         }
 
+        if (rope.enabled)
+        {
+            distanceJoint.distance = grappleLength;
+            rope.SetPosition(1, transform.position);
+        }
 
         animator.SetBool("isGrounded", IsGrounded());
         animator.SetBool("isRunning", isRunning);
         animator.SetBool("isFalling", rigidBody.linearVelocity.y < -0.1f && !isOnMovingPlatform);
     }
 
-    private void HandleJump(bool wantsToJump, bool wantsToHold)
+    private void HandleJump()
     {
+        bool wantsToHold = queuedMovement.hold;
+        bool wantsToJump = queuedMovement.jump;
         if (isGrounded)
         {
             if (rigidBody.linearVelocity.y <= 0.1f)
@@ -184,14 +249,14 @@ public class PlayerController : MonoBehaviour
 
     private void DoGrapplePhysics()
     {
-        if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement)
+        if (queuedMovement.grappleExtend)
             if (grappleLength < grappleMaxLength * 1.25f)
                 grappleLength += 0.01f;
-        if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) && enableMovement)
+        if (queuedMovement.grappleContract)
             if (grappleLength > 0.01f)
                 grappleLength -= 0.01f;
 
-        if (Input.GetMouseButtonDown(0) && enableMovement)
+        if (queuedMovement.grappleDown && enableMovement)
         {
             RaycastHit2D hit = Physics2D.Raycast(
                 Camera.main.ScreenToWorldPoint(Input.mousePosition),
@@ -221,17 +286,10 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (Input.GetMouseButtonUp(0) && enableMovement)
+        if (queuedMovement.grappleUp && enableMovement)
         {
             RemoveGrappling();
         }
-
-        if (rope.enabled)
-        {
-            distanceJoint.distance = grappleLength;
-            rope.SetPosition(1, transform.position);
-        }
-
         return;
     }
 
