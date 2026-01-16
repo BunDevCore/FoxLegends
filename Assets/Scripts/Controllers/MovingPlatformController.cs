@@ -1,3 +1,4 @@
+using Unity.Mathematics.Geometry;
 using UnityEngine;
 
 public class MovingPlatformController : MonoBehaviour
@@ -13,37 +14,46 @@ public class MovingPlatformController : MonoBehaviour
     [SerializeField] private GameObject platformPrefab;
     private GameObject platform;
 
-
     private int currentWaypointIndex = 0;
 
     [SerializeField] private float speed = 1f;
 
-    private Rigidbody2D rb;
-    private Vector2 moveDirection;
+    private float elapsedTime;
+    public Vector2 velocity;
 
     private void Awake()
     {
         platform = Instantiate(platformPrefab, waypoints[currentWaypointIndex].transform.position, Quaternion.identity);
-        platform.GetComponent<SpriteRenderer>().sortingLayerName = "Platforms";
-        rb = platform.GetComponent<Rigidbody2D>();
-        CalculateDirection();
+        velocity =
+            (waypoints[(currentWaypointIndex + 1) % waypoints.Length].transform.position -
+             waypoints[currentWaypointIndex].transform.position).normalized * speed;
     }
 
     // Update is called once per frame
     void Update()
     {
-        var dist = Vector2.Distance(platform.transform.position, waypoints[currentWaypointIndex].transform.position);
-        if (dist < 0.01f) currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
-        CalculateDirection();
-    }
+        elapsedTime += Time.deltaTime;
+        float dist = Vector2.Distance(
+            waypoints[currentWaypointIndex].transform.position,
+            waypoints[(currentWaypointIndex + 1) % waypoints.Length].transform.position);
+        float percentageComplete = elapsedTime * speed / dist;
 
-    private void FixedUpdate()
-    {
-        rb.linearVelocity = moveDirection * speed;
-    }
+        platform.transform.position = Vector2.Lerp(
+            waypoints[currentWaypointIndex].transform.position,
+            waypoints[(currentWaypointIndex + 1) % waypoints.Length].transform.position,
+            percentageComplete
+        );
 
-    private void CalculateDirection()
-    {
-        moveDirection = (waypoints[currentWaypointIndex].transform.position - platform.transform.position).normalized;
+        if (percentageComplete > 1f)
+        {
+            elapsedTime = 0;
+            currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+            velocity =
+                (waypoints[(currentWaypointIndex + 1) % waypoints.Length].transform.position -
+                 waypoints[currentWaypointIndex].transform.position).normalized * speed;
+        }
+        
+        Debug.DrawRay(platform.transform.position, velocity, Color.green);
+        
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlatformGeneratorController : MonoBehaviour
 {
@@ -13,22 +14,18 @@ public class PlatformGeneratorController : MonoBehaviour
     private class Platform
     {
         public readonly GameObject platformObject;
-        public readonly Rigidbody2D rigidBody;
-        public int waypointIndex;
-        public Vector2 moveDirection;
 
-        public Platform(GameObject platformObject, Rigidbody2D rigidBody, int waypointIndex)
+        public int currentWaypointIndex;
+
+        // public Vector2 moveDirection;
+        public float elapsedTime = 0;
+        public Vector2 velocity;
+
+        public Platform(GameObject platformObject, Vector2 velocity)
         {
             this.platformObject = platformObject;
-            this.rigidBody = rigidBody;
-            this.waypointIndex = waypointIndex;
-            moveDirection = Vector2.zero;
-        }
-
-        public void CalculateDirection(GameObject[] waypoints)
-        {
-            moveDirection = (waypoints[waypointIndex].transform.position - platformObject.transform.position)
-                .normalized;
+            currentWaypointIndex = 0;
+            this.velocity = velocity;
         }
     }
 
@@ -41,12 +38,13 @@ public class PlatformGeneratorController : MonoBehaviour
 
     private float lastSpawnTime;
 
+    [Header("Timer")] [SerializeField] private Image radialFillImage;
+
     private void CreatePlatform()
     {
         var platform = Instantiate(platformPrefab, waypoints[0].transform.position, Quaternion.identity);
-        platform.GetComponent<SpriteRenderer>().sortingLayerName = "Platforms";
-        platforms.Add(new Platform(platform, platform.GetComponent<Rigidbody2D>(), 1));
-        platforms.Last().CalculateDirection(waypoints);
+        Vector2 velocity = (waypoints[1].transform.position - waypoints[0].transform.position).normalized * speed;
+        platforms.Add(new Platform(platform, velocity));
     }
 
     private void Start()
@@ -57,23 +55,38 @@ public class PlatformGeneratorController : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        UpdateRadialProgressCircle();
         for (int i = platforms.Count - 1; i >= 0; i--)
         {
-            var dist = Vector2.Distance(
-                platforms[i].platformObject.transform.position,
-                waypoints[platforms[i].waypointIndex].transform.position);
-            if (dist < 0.1f)
-            {
-                platforms[i].waypointIndex += 1;
+            platforms[i].elapsedTime += Time.deltaTime;
+            float dist = Vector2.Distance(
+                waypoints[platforms[i].currentWaypointIndex].transform.position,
+                waypoints[platforms[i].currentWaypointIndex + 1].transform.position);
+            float percentageComplete = platforms[i].elapsedTime * speed / dist;
 
-                if (platforms[i].waypointIndex < waypoints.Length)
-                    platforms[i].CalculateDirection(waypoints);
-                else
+            platforms[i].platformObject.transform.position = Vector2.Lerp(
+                waypoints[platforms[i].currentWaypointIndex].transform.position,
+                waypoints[platforms[i].currentWaypointIndex + 1].transform.position,
+                percentageComplete
+            );
+
+            if (percentageComplete > 1f)
+            {
+                platforms[i].elapsedTime = 0;
+                platforms[i].currentWaypointIndex += 1;
+                if (platforms[i].currentWaypointIndex == waypoints.Length - 1)
                 {
                     Destroy(platforms[i].platformObject);
                     platforms.RemoveAt(i);
+                    continue;
                 }
+
+                platforms[i].velocity =
+                    (waypoints[(platforms[i].currentWaypointIndex + 1) % waypoints.Length].transform.position -
+                     waypoints[platforms[i].currentWaypointIndex].transform.position).normalized * speed;
             }
+
+            Debug.DrawRay(platforms[i].platformObject.transform.position, platforms[i].velocity, Color.green);
         }
 
         if (Time.time - lastSpawnTime >= interval)
@@ -83,8 +96,8 @@ public class PlatformGeneratorController : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    private void UpdateRadialProgressCircle()
     {
-        platforms.ForEach(platform => platform.rigidBody.linearVelocity = platform.moveDirection * speed);
+        radialFillImage.fillAmount = (Time.time - lastSpawnTime) / interval;
     }
 }
