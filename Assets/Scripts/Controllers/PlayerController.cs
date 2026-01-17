@@ -76,18 +76,21 @@ public class PlayerController : MonoBehaviour
     private DistanceJoint2D distanceJoint;
     private LineRenderer rope;
 
+    public GameObject graplingHook;
     public GameObject grappleInstructionsTrigger;
     public GameObject[] grappleInstructions;
     private List<SpriteRenderer> grappleInstructionSprites = new();
     private List<TextMeshPro> grappleInstructionTexts = new();
+
     private enum GrappleInstructionsEnum
     {
         Outside,
         Inside,
         InsideShow
     }
+
     private GrappleInstructionsEnum grappleInstructionsState = GrappleInstructionsEnum.Outside;
-    
+
 
     [Header("Audio Settings")] private AudioSource audioSource;
     [SerializeField] private AudioClip deathSound;
@@ -110,6 +113,7 @@ public class PlayerController : MonoBehaviour
         rope.enabled = false;
         audioSource = GetComponent<AudioSource>();
         isGrappling = false;
+        graplingHook.SetActive(false);
 
         originalParent = gameObject.transform.parent.gameObject;
 
@@ -150,6 +154,9 @@ public class PlayerController : MonoBehaviour
             rigidBody.linearVelocity =
                 new Vector2(rigidBody.linearVelocity.x + queuedMovement.directionalInput * .05f,
                     rigidBody.linearVelocity.y);
+
+            graplingHook.transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(grapplePoint.y - transform.position.y,
+                grapplePoint.x - transform.position.x) * Mathf.Rad2Deg - 90, Vector3.forward);
         }
         else
         {
@@ -204,9 +211,9 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if(isGrappling && grappleInstructionsState == GrappleInstructionsEnum.Inside)
+        if (isGrappling && grappleInstructionsState == GrappleInstructionsEnum.Inside)
             ShowGrappleInstructions();
-        
+
         if (queuedMovement.directionalInput > 0 && !isFacingRight) Flip();
         else if (queuedMovement.directionalInput < 0 && isFacingRight) Flip();
 
@@ -319,12 +326,16 @@ public class PlayerController : MonoBehaviour
 
                 grapplePoint = hit.point;
                 grapplePoint.z = 0;
+                graplingHook.transform.position = grapplePoint;
+                graplingHook.transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(grapplePoint.y - transform.position.y,
+                    grapplePoint.x - transform.position.x) * Mathf.Rad2Deg - 90, Vector3.forward);
+                graplingHook.SetActive(true);
 
                 distanceJoint.connectedAnchor = grapplePoint;
                 distanceJoint.distance = grappleLength = dist;
                 distanceJoint.enabled = true;
 
-                rope.SetPosition(0, grapplePoint);
+                rope.SetPosition(0, grapplePoint-new Vector3(0,0.2f,0));
                 rope.SetPosition(1, transform.position);
                 rope.enabled = true;
 
@@ -342,6 +353,7 @@ public class PlayerController : MonoBehaviour
 
     void RemoveGrappling()
     {
+        graplingHook.SetActive(false);
         rigidBody.linearDamping = 0;
         isGrappling = false;
         distanceJoint.enabled = false;
@@ -387,7 +399,7 @@ public class PlayerController : MonoBehaviour
     {
         if (col.gameObject == grappleInstructionsTrigger)
             grappleInstructionsState = GrappleInstructionsEnum.Inside;
-        
+
 
         if (col.CompareTag("MovingPlatform"))
         {
