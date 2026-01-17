@@ -97,6 +97,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip bonusSound;
     [SerializeField] private AudioClip carrotSound;
+    [SerializeField] private AudioClip checkpointSound;
+    [SerializeField] private GameObject bgMusic;
 
     private GameObject originalParent;
     private QueuedMovementInput queuedMovement = new();
@@ -137,6 +139,7 @@ public class PlayerController : MonoBehaviour
                 textMeshPro.color = color;
             }
         }
+        
     }
 
     private void FixedUpdate()
@@ -452,6 +455,15 @@ public class PlayerController : MonoBehaviour
         if (col.CompareTag("Killzone"))
         {
             PlayerDeath();
+        }
+    }
+
+    public void PlayCheckpointSound()
+    {
+        if (audioSource != null && checkpointSound != null)
+        {
+            audioSource.pitch = 1f;
+            audioSource.PlayOneShot(checkpointSound, AudioListener.volume);
         }
     }
 
