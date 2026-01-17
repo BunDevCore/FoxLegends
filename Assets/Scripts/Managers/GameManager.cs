@@ -12,8 +12,9 @@ public enum GameState
     [InspectorName("Gameplay")] GAME,
     [InspectorName("Pause")] PAUSE_MENU,
     [InspectorName("Options")] SETTINGS,
-
-    [InspectorName("Level completed (either successfully)")]
+    [InspectorName("Level death")]
+    LEVEL_DEATH,
+    [InspectorName("Level completed successfully")]
     LEVEL_COMPLETED
 }
 
@@ -26,6 +27,7 @@ public class GameManager : MonoBehaviour
     public Canvas pauseMenuCanvas;
     public Canvas settingsCanvas;
     public Canvas endingCanvas;
+    public Canvas deathEndingCanvas;
     public TMP_Text qualityText;
     public TMP_Text timerText;
     public TMP_Text pointsText;
@@ -155,7 +157,6 @@ public class GameManager : MonoBehaviour
         get => PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
         set
         {
-            Debug.Log("value: " + value);
             PlayerPrefs.SetFloat("ShakeIntensity", value);
             PlayerPrefs.Save();
         }
@@ -167,6 +168,7 @@ public class GameManager : MonoBehaviour
         inGameCanvas.enabled = currentGameState == GameState.GAME;
         pauseMenuCanvas.enabled = currentGameState == GameState.PAUSE_MENU;
         settingsCanvas.enabled = currentGameState == GameState.SETTINGS;
+        deathEndingCanvas.enabled = currentGameState == GameState.LEVEL_DEATH;
         endingCanvas.enabled = currentGameState == GameState.LEVEL_COMPLETED;
     }
 
@@ -186,9 +188,19 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
     }
 
+    public void LevelDeath()
+    {
+        DeathEndController.instance.LevelDeath();
+        SetGameState(GameState.LEVEL_DEATH);
+        Time.timeScale = 0;
+        runTime = false;
+    }
+    
     public void LevelComplete()
     {
+        EndController.instance.LevelComplete();
         SetGameState(GameState.LEVEL_COMPLETED);
+        Time.timeScale = 0;
         runTime = false;
     }
 
@@ -212,10 +224,7 @@ public class GameManager : MonoBehaviour
         lives = Mathf.Clamp(lives, 0, hearts.Length);
 
         if (lives <= 0)
-        {
-            Debug.Log("Game Over!");
-            OnRestartClicked();
-        }
+            LevelDeath();
 
         UpdateHeartsUI();
     }

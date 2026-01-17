@@ -468,7 +468,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 31.390808, w: 0}
+  m_margin: {x: 0, y: 0, z: 0.3544922, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -604,7 +604,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 31.390808, w: 0}
+  m_margin: {x: 0, y: 0, z: 0.11199951, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1388,7 +1388,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 31.390808, w: 0}
+  m_margin: {x: 0, y: 0, z: 0.3544922, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1509,9 +1509,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7d910a11a3149529079f4b35942eeeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scoreTimeDivider: 2
+  scoreTimeDivider: 40
   timeText: {fileID: 9046712610144378330}
-  pointsText: {fileID: 3438910243446865570}
+  pointsText: {fileID: 0}
   scoreText: {fileID: 9019381358618744036}
   highscoreText: {fileID: 2010329095448417673}
 --- !u!1 &8520995647794216864
@@ -1644,7 +1644,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 31.390808, w: 0}
+  m_margin: {x: 0, y: 0, z: -0.13049316, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
