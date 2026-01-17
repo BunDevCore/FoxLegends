@@ -103,6 +103,11 @@ public class GameManager : MonoBehaviour
             else if (currentGameState == GameState.GAME || currentGameState == GameState.SETTINGS)
                 PauseMenu();
         }
+        if (Input.GetKeyDown(KeyCode.E) && currentGameState == GameState.PAUSE_MENU)
+            InGame();
+        if (Input.GetKeyDown(KeyCode.R) && currentGameState == GameState.PAUSE_MENU)
+            OnRestartClicked();
+            
 
         if (runTime)
             tickTime();
