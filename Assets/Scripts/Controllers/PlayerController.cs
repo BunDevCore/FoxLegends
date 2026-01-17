@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Random = UnityEngine.Random;
 
 public class QueuedMovementInput
 {
@@ -73,6 +76,19 @@ public class PlayerController : MonoBehaviour
     private DistanceJoint2D distanceJoint;
     private LineRenderer rope;
 
+    public GameObject grappleInstructionsTrigger;
+    public GameObject[] grappleInstructions;
+    private List<SpriteRenderer> grappleInstructionSprites = new();
+    private List<TextMeshPro> grappleInstructionTexts = new();
+    private enum GrappleInstructionsEnum
+    {
+        Outside,
+        Inside,
+        InsideShow
+    }
+    private GrappleInstructionsEnum grappleInstructionsState = GrappleInstructionsEnum.Outside;
+    
+
     [Header("Audio Settings")] private AudioSource audioSource;
     [SerializeField] private AudioClip deathSound;
     [SerializeField] private AudioClip jumpSound;
@@ -96,6 +112,26 @@ public class PlayerController : MonoBehaviour
         isGrappling = false;
 
         originalParent = gameObject.transform.parent.gameObject;
+
+        foreach (var grappleInstruction in grappleInstructions)
+        {
+            foreach (var spriteRenderer in grappleInstruction.GetComponentsInChildren<SpriteRenderer>())
+            {
+                grappleInstructionSprites.Add(spriteRenderer);
+                Color color = spriteRenderer.color;
+                color.a = 0;
+                spriteRenderer.material.color = color;
+            }
+
+            foreach (var textMeshPro in grappleInstruction.GetComponentsInChildren<TextMeshPro>())
+            {
+                grappleInstructionTexts.Add(textMeshPro);
+                Debug.Log(textMeshPro.text);
+                Color color = textMeshPro.color;
+                color.a = 0;
+                textMeshPro.color = color;
+            }
+        }
     }
 
     private void FixedUpdate()
@@ -112,11 +148,13 @@ public class PlayerController : MonoBehaviour
         if (isGrappling)
         {
             rigidBody.linearVelocity =
-                new Vector2(rigidBody.linearVelocity.x + queuedMovement.directionalInput * .05f, rigidBody.linearVelocity.y);
+                new Vector2(rigidBody.linearVelocity.x + queuedMovement.directionalInput * .05f,
+                    rigidBody.linearVelocity.y);
         }
         else
         {
-            rigidBody.linearVelocity = new Vector2(queuedMovement.directionalInput * moveSpeed, rigidBody.linearVelocity.y);
+            rigidBody.linearVelocity =
+                new Vector2(queuedMovement.directionalInput * moveSpeed, rigidBody.linearVelocity.y);
         }
 
 
@@ -126,8 +164,10 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         CycleGroundedState();
-        if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && enableMovement) queuedMovement.directionalInput = 1f;
-        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && enableMovement) queuedMovement.directionalInput = -1f;
+        if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && enableMovement)
+            queuedMovement.directionalInput = 1f;
+        if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && enableMovement)
+            queuedMovement.directionalInput = -1f;
 
         if (Input.GetMouseButtonUp(0))
         {
@@ -157,13 +197,16 @@ public class PlayerController : MonoBehaviour
                 queuedMovement.grappleExtend = true;
             }
 
-            if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) && enableMovement)
+            if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W)) &&
+                enableMovement)
             {
                 queuedMovement.grappleContract = true;
             }
         }
 
-
+        if(isGrappling && grappleInstructionsState == GrappleInstructionsEnum.Inside)
+            ShowGrappleInstructions();
+        
         if (queuedMovement.directionalInput > 0 && !isFacingRight) Flip();
         else if (queuedMovement.directionalInput < 0 && isFacingRight) Flip();
 
@@ -231,7 +274,7 @@ public class PlayerController : MonoBehaviour
         rigidBody.linearVelocityY = currentJumpForce;
         if (audioSource != null && jumpSound != null)
         {
-            audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+            audioSource.pitch = Random.Range(0.9f, 1.1f);
             audioSource.PlayOneShot(jumpSound, AudioListener.volume);
             audioSource.pitch = 1f;
         }
@@ -327,6 +370,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        if (other.gameObject == grappleInstructionsTrigger)
+        {
+            HideGrappleInstructions();
+        }
+
         if (other.CompareTag("MovingPlatform"))
         {
             isOnMovingPlatform = false;
@@ -337,6 +385,10 @@ public class PlayerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D col)
     {
+        if (col.gameObject == grappleInstructionsTrigger)
+            grappleInstructionsState = GrappleInstructionsEnum.Inside;
+        
+
         if (col.CompareTag("MovingPlatform"))
         {
             isOnMovingPlatform = true;
@@ -348,13 +400,14 @@ public class PlayerController : MonoBehaviour
         {
             if (audioSource != null && bonusSound != null)
             {
-                audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                audioSource.pitch = Random.Range(0.9f, 1.1f);
                 audioSource.PlayOneShot(bonusSound, AudioListener.volume);
                 audioSource.pitch = 1f;
             }
+
             if (GlobalDifficulty.Difficulty == DifficultyLevel.Hardcore)
                 GameManager.instance.AddPoints(1);
-            else 
+            else
                 GameManager.instance.AddLives(1);
             Destroy(col.gameObject);
         }
@@ -363,7 +416,7 @@ public class PlayerController : MonoBehaviour
         {
             if (audioSource != null && bonusSound != null)
             {
-                audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                audioSource.pitch = Random.Range(0.9f, 1.1f);
                 audioSource.PlayOneShot(bonusSound, AudioListener.volume);
                 audioSource.pitch = 1f;
             }
@@ -411,11 +464,89 @@ public class PlayerController : MonoBehaviour
         GameManager.instance.AddLives(-1);
         if (audioSource != null && deathSound != null)
         {
-            audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+            audioSource.pitch = Random.Range(0.9f, 1.1f);
             audioSource.PlayOneShot(deathSound, AudioListener.volume);
             audioSource.pitch = 1f;
         }
 
         StartCoroutine(GameManager.instance.RespawnSequence(this));
+    }
+
+    private IEnumerator FadeInSprite(SpriteRenderer sprite)
+    {
+        for (float f = 0.05f; f <= 1; f += 0.05f)
+        {
+            Color c = sprite.material.color;
+            c.a = f;
+            sprite.material.color = c;
+            yield return new WaitForSeconds(0.05f);
+        }
+    }
+
+    private void ShowGrappleInstructions()
+    {
+        if (grappleInstructionsState == GrappleInstructionsEnum.Inside)
+        {
+            grappleInstructionsState = GrappleInstructionsEnum.InsideShow;
+            foreach (var spriteRenderer in grappleInstructionSprites)
+                StartCoroutine(FadeInSprite(spriteRenderer));
+            foreach (var textMeshPro in grappleInstructionTexts)
+                StartCoroutine(FadeInText(textMeshPro));
+        }
+    }
+
+    private void HideGrappleInstructions()
+    {
+        if (grappleInstructionsState == GrappleInstructionsEnum.InsideShow)
+        {
+            grappleInstructionsState = GrappleInstructionsEnum.Inside;
+            foreach (var spriteRenderer in grappleInstructionSprites)
+                StartCoroutine(FadeOutSprite(spriteRenderer));
+            foreach (var textMeshPro in grappleInstructionTexts)
+                StartCoroutine(FadeOutText(textMeshPro));
+        }
+    }
+
+    private IEnumerator FadeOutSprite(SpriteRenderer sprite)
+    {
+        for (float f = 1f; f > 0f; f -= 0.05f)
+        {
+            Color c = sprite.material.color;
+            c.a = f;
+            sprite.material.color = c;
+            yield return new WaitForSeconds(0.05f);
+            if (f <= 0.05f)
+            {
+                c.a = 0;
+                sprite.material.color = c;
+            }
+        }
+    }
+
+    private IEnumerator FadeInText(TextMeshPro text)
+    {
+        for (float f = 0.05f; f <= 1; f += 0.05f)
+        {
+            Color c = text.color;
+            c.a = f;
+            text.color = c;
+            yield return new WaitForSeconds(0.05f);
+        }
+    }
+
+    private IEnumerator FadeOutText(TextMeshPro text)
+    {
+        for (float f = 1f; f > 0f; f -= 0.05f)
+        {
+            Color c = text.color;
+            c.a = f;
+            text.color = c;
+            yield return new WaitForSeconds(0.05f);
+            if (f <= 0.05f)
+            {
+                c.a = 0;
+                text.color = c;
+            }
+        }
     }
 }
