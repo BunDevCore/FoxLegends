@@ -16,6 +16,7 @@ TagManager:
   - PlatformGrid
   - Grappa
   - Carrot
+  - Checkpoint
   layers:
   - Default
   - TransparentFX

@@ -24,6 +24,7 @@ public class Checkpoint : MonoBehaviour
     {
         if (other.CompareTag("Player") && !isActivated)
         {   
+            other.SendMessage("PlayCheckpointSound");
             ResetAllCheckpoints();
             ActivateCheckpoint();
         }
