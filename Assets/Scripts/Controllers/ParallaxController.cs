@@ -4,22 +4,32 @@ public class ParallaxController : MonoBehaviour
 {
     private float length, startpos;
     public GameObject cam;
+    private Camera camCamera;
     public float parallaxEffect;
+    private SpriteRenderer spriteRenderer;
 
     void Start()
     {
         startpos = transform.position.x;
-        length = GetComponent<SpriteRenderer>().bounds.size.x;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        length = spriteRenderer.bounds.size.x;
+        camCamera = cam.GetComponent<Camera>();
     }
 
     void Update()
     {
-        float temp = (cam.transform.position.x * (1 - parallaxEffect));
-        float dist = (cam.transform.position.x * parallaxEffect);
+        float cameraHeight = camCamera.orthographicSize * 2f;
+        float baseSpriteHeight = spriteRenderer.sprite.bounds.size.y;
+        float targetScaleY = cameraHeight / baseSpriteHeight;
+        transform.localScale = new Vector3(targetScaleY, targetScaleY, 1f);
+        
+        float temp = cam.transform.position.x * (1 - parallaxEffect);
+        float dist = cam.transform.position.x * parallaxEffect;
 
-        transform.position = new Vector3(startpos + dist, cam.transform.position.y, transform.position.z);
+        transform.position = new Vector3(startpos + dist + targetScaleY, cam.transform.position.y, transform.position.z);
 
-        if (temp > startpos + length) startpos += length;
-        else if (temp < startpos - length) startpos -= length;
+        float currentWidth = length * transform.localScale.x;
+        if (temp > startpos + currentWidth) startpos += currentWidth;
+        else if (temp < startpos - currentWidth) startpos -= currentWidth;
     }
 }
