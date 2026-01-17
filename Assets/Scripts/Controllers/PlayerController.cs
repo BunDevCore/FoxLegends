@@ -335,7 +335,7 @@ public class PlayerController : MonoBehaviour
                 distanceJoint.distance = grappleLength = dist;
                 distanceJoint.enabled = true;
 
-                rope.SetPosition(0, grapplePoint-new Vector3(0,0.2f,0));
+                rope.SetPosition(0, grapplePoint);
                 rope.SetPosition(1, transform.position);
                 rope.enabled = true;
 
