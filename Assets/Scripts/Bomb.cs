@@ -9,10 +9,15 @@ public class Bomb : MonoBehaviour
         if (!other.CompareTag("Enemy"))
         {
             Instantiate(bombExplosionPrefab, transform.position + Vector3.up*0.2f, transform.rotation);
-            Destroy(gameObject);
             if (other.CompareTag("Player"))
             {
                 other.gameObject.SendMessage("PlayerDeath");
+                Destroy(gameObject);
+            }
+
+            if (other.CompareTag("OneWayPlatform") || other.CompareTag("PlatformGrid") || other.CompareTag("Grappa") || other.CompareTag("MovingPlatform"))
+            {
+                Destroy(gameObject);
             }
         }
     }
