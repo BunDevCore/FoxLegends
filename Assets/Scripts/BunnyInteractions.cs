@@ -47,9 +47,21 @@ public class BunnyInteractions : MonoBehaviour
                 break;
             case 1:
                 DialogueManager.instance.TriggerDialogue("OneCarrot");
+                if (!KeyManager.instance.hasNormalKey)
+                    DialogueManager.instance.TriggerDialogue("NormalCarrotMissing");
+                if (!KeyManager.instance.hasGoldenKey)
+                    DialogueManager.instance.TriggerDialogue("GoldenCarrotMissing");
+                if (!KeyManager.instance.hasDiamondKey)
+                    DialogueManager.instance.TriggerDialogue("DiamondCarrotMissing");
                 break;
             case 2:
                 DialogueManager.instance.TriggerDialogue("TwoCarrots");
+                if (!KeyManager.instance.hasNormalKey)
+                    DialogueManager.instance.TriggerDialogue("NormalCarrotMissing");
+                if (!KeyManager.instance.hasGoldenKey)
+                    DialogueManager.instance.TriggerDialogue("GoldenCarrotMissing");
+                if (!KeyManager.instance.hasDiamondKey)
+                    DialogueManager.instance.TriggerDialogue("DiamondCarrotMissing");
                 break;
             case 3:
                 DialogueManager.instance.TriggerDialogue("AllCarrots", () => {GameManager.instance.LevelComplete();});
