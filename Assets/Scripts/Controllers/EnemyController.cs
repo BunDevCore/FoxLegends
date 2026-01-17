@@ -48,10 +48,10 @@ public class EnemyController : MonoBehaviour
             Vector2 hitNormal = other.GetContact(0).normal;
             Rigidbody2D playerRb = other.gameObject.GetComponent<Rigidbody2D>();
             // Gracz zabija przeciwnika tylko jeśli:
-            // - hitNormal.y < -0.5f (uderzenie przyszło z góry)
+            // - hitNormal.y < -0.35f (uderzenie przyszło z góry)
             // - playerRb.linearVelocity.y < 0 (gracz faktycznie spada/skacze na świnię)
 
-            if (hitNormal.y < -0.5f && playerRb.linearVelocity.y < 0.1f)
+            if (hitNormal.y < -0.35f && playerRb.linearVelocity.y < 0.1f)
             {
                 gameObject.SendMessage("Death");
                 mCameraFollow.Shake(.3f);
@@ -60,7 +60,7 @@ public class EnemyController : MonoBehaviour
                 if (playerRb.linearVelocityY > maxBounceVelocity) playerRb.linearVelocityY = maxBounceVelocity;
                 if (audioSource != null && deathSound != null)
                 {
-                    audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.1f);
+                    audioSource.pitch = Random.Range(0.9f, 1.1f);
                     audioSource.PlayOneShot(deathSound, AudioListener.volume);
                     audioSource.pitch = 1f;
                 }
