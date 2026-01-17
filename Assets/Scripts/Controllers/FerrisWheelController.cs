@@ -83,7 +83,9 @@ public class FerrisWheelController : MonoBehaviour
             if (percentageComplete > 1)
             {
                 platforms[i].elapsedTime = 0;
-                platforms[i].currentWaypointIndex = (platforms[i].currentWaypointIndex + 1) % positions.Length;
+                platforms[i].currentWaypointIndex =
+                    (platforms[i].currentWaypointIndex + (rotationSpeed > 0 ? 1 : positions.Length - 1)) %
+                    positions.Length;
             }
         }
     }

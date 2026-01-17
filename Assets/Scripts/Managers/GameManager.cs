@@ -123,7 +123,11 @@ public class GameManager : MonoBehaviour
     }
 
     public void OnResumeClicked() => InGame();
-    public void OnRestartClicked() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    public void OnRestartClicked()
+    {
+        cursorManager.ResetCursor();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 
     public void OnReturnToMainClicked()
     {
