@@ -123,6 +123,7 @@ public class GameManager : MonoBehaviour
     public void OnReturnToMainClicked()
     {
         cursorManager.ResetCursor();
+        Time.timeScale = 1;
         SceneManager.LoadScene("MainMenu");
     }
 
