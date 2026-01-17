@@ -15,6 +15,7 @@ TagManager:
   - OneWayPlatform
   - PlatformGrid
   - Grappa
+  - Carrot
   layers:
   - Default
   - TransparentFX
