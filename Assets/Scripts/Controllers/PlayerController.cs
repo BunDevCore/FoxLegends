@@ -352,8 +352,10 @@ public class PlayerController : MonoBehaviour
                 audioSource.PlayOneShot(bonusSound, AudioListener.volume);
                 audioSource.pitch = 1f;
             }
-
-            GameManager.instance.AddLives(1);
+            if (GlobalDifficulty.Difficulty == DifficultyLevel.Hardcore)
+                GameManager.instance.AddPoints(1);
+            else 
+                GameManager.instance.AddLives(1);
             Destroy(col.gameObject);
         }
 

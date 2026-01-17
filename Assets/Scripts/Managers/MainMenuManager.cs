@@ -8,6 +8,7 @@ using UnityEngine.UI;
 public class MainMenuManager : MonoBehaviour
 {
     [Header("UI References")] 
+    public Canvas startCanvas;
     public Canvas mainMenuCanvas;
     public Canvas settingsCanvas;
     public TMP_Text qualityText;
@@ -21,6 +22,7 @@ public class MainMenuManager : MonoBehaviour
     {
         mainMenuCanvas.enabled = true;
         settingsCanvas.enabled = false;
+        startCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
         soundSlider.value = AudioListener.volume;
         soundSlider.onValueChanged.AddListener(v => AudioListener.volume = v);
@@ -32,8 +34,8 @@ public class MainMenuManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (settingsCanvas.enabled)
-                OnSettingsBackClicked();
+            if (!mainMenuCanvas.enabled)
+                OnBackToMenuClicked();
         }
         if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Space))
         {
@@ -42,20 +44,37 @@ public class MainMenuManager : MonoBehaviour
         }
     }
 
-    public void OnStartButtonPressed() => SceneManager.LoadScene("Level1");
+    private void StartGame(DifficultyLevel dl)
+    {
+        GlobalDifficulty.Difficulty = dl;
+        SceneManager.LoadScene("Level1");
+    }
+    
+    public void OnEasyPressed() => StartGame(DifficultyLevel.Easy);
+    public void OnNormalPressed() => StartGame(DifficultyLevel.Normal);
+    public void OnHardcorePressed() => StartGame(DifficultyLevel.Hardcore);
+
+    public void OnStartButtonPressed()
+    {
+        mainMenuCanvas.enabled = false;
+        settingsCanvas.enabled = false;
+        startCanvas.enabled = true;
+    }
 
     public void OnSettingsClicked()
     {
         cursorManager.ResetCursor();
         mainMenuCanvas.enabled = false;
         settingsCanvas.enabled = true;
+        startCanvas.enabled = false;
     }
 
-    public void OnSettingsBackClicked()
+    public void OnBackToMenuClicked()
     {
         cursorManager.ResetCursor();
         mainMenuCanvas.enabled = true;
         settingsCanvas.enabled = false;
+        startCanvas.enabled = false;
     }
 
     public void OnExitButtonPressed()

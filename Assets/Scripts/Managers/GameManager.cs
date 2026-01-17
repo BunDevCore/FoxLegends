@@ -12,8 +12,8 @@ public enum GameState
     [InspectorName("Gameplay")] GAME,
     [InspectorName("Pause")] PAUSE_MENU,
     [InspectorName("Options")] SETTINGS,
-    [InspectorName("Level death")]
-    LEVEL_DEATH,
+    [InspectorName("Level death")] LEVEL_DEATH,
+
     [InspectorName("Level completed successfully")]
     LEVEL_COMPLETED
 }
@@ -37,7 +37,18 @@ public class GameManager : MonoBehaviour
     [Header("Checkpoint System")] public Vector3 currentSpawnPoint;
 
     public GameObject[] hearts;
+
     private int lives;
+
+    public int Lives
+    {
+        get => lives;
+        set
+        {
+            lives = value;
+            UpdateHeartsUI();
+        }
+    }
 
     [Header("Score System")] public float timeToComplete = 100;
     public float currentTime = 0;
@@ -75,7 +86,9 @@ public class GameManager : MonoBehaviour
         lastMaxXandY = mCameraFollow?.maxXAndY ?? Vector2.zero;
         settingsCanvas.enabled = false;
         qualityText.SetText("Quality:\n" + QualitySettings.names[QualitySettings.GetQualityLevel()]);
-        lives = 5;
+        lives = 6;
+        if (GlobalDifficulty.Difficulty == DifficultyLevel.Hardcore)
+            lives = 3;
         UpdateHeartsUI();
         points = 0;
         UpdatePointsUI();
@@ -84,6 +97,7 @@ public class GameManager : MonoBehaviour
             soundSlider.value = AudioListener.volume;
             soundSlider.onValueChanged.AddListener(v => AudioListener.volume = v);
         }
+
         if (shakeSlider)
         {
             shakeSlider.value = PlayerPrefs.GetFloat("ShakeIntensity", 0.5f);
@@ -103,11 +117,12 @@ public class GameManager : MonoBehaviour
             else if (currentGameState == GameState.GAME || currentGameState == GameState.SETTINGS)
                 PauseMenu();
         }
+
         if (Input.GetKeyDown(KeyCode.E) && currentGameState == GameState.PAUSE_MENU)
             InGame();
         if (Input.GetKeyDown(KeyCode.R) && currentGameState == GameState.PAUSE_MENU)
             OnRestartClicked();
-            
+
 
         if (runTime)
             tickTime();
@@ -123,6 +138,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void OnResumeClicked() => InGame();
+
     public void OnRestartClicked()
     {
         cursorManager.ResetCursor();
@@ -205,7 +221,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;
         runTime = false;
     }
-    
+
     public void LevelComplete()
     {
         EndController.instance.LevelComplete();
@@ -230,13 +246,11 @@ public class GameManager : MonoBehaviour
 
     public void AddLives(int liveChange)
     {
-        lives += liveChange;
-        lives = Mathf.Clamp(lives, 0, hearts.Length);
+        Lives += liveChange;
+        Lives = Mathf.Clamp(lives, 0, hearts.Length);
 
         if (lives <= 0)
             LevelDeath();
-
-        UpdateHeartsUI();
     }
 
     private void UpdateHeartsUI()

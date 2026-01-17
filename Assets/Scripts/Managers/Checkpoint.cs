@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
@@ -31,6 +32,8 @@ public class Checkpoint : MonoBehaviour
     private void ActivateCheckpoint()
     {
         isActivated = true;
+        if (GlobalDifficulty.Difficulty == DifficultyLevel.Easy)
+            GameManager.instance.Lives = Math.Max(GameManager.instance.Lives, 4);
         
         if (activeSprite != null)
         {
