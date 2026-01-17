@@ -12,6 +12,7 @@ public class QueuedMovementInput
     public bool hold;
     public float directionalInput;
     public bool phaseDown;
+    public bool moveDown;
     public bool grappleExtend;
     public bool grappleContract;
     public bool grappleDown;
@@ -23,6 +24,7 @@ public class QueuedMovementInput
         hold = false;
         directionalInput = 0f;
         phaseDown = false;
+        moveDown = false;
         grappleExtend = false;
         grappleContract = false;
         grappleUp = false;
@@ -57,6 +59,9 @@ public class PlayerController : MonoBehaviour
     private float currentJumpForce;
     private bool isGrounded = true;
     private bool wasGroundedLastFrame = true;
+
+    private bool isLadder = false;
+    private bool isClimbing = false;
 
     public bool isOnMovingPlatform = false;
     private GameObject movingPlatform;
@@ -149,6 +154,13 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(DisableCollision());
         }
 
+        // if (isClimbing)
+        // {
+        //     rigidBody.gravityScale = 0;
+        //     rigidBody.linearVelocity = new Vector2(rigidBody.linearVelocityX, rigidBody.linearVelocityY * moveSpeed);
+        // }
+        // else
+        // {
         if (isGrappling)
         {
             rigidBody.linearVelocity =
@@ -190,8 +202,14 @@ public class PlayerController : MonoBehaviour
 
         if (!isGrappling)
         {
-            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement && oneWayPlatform)
-                queuedMovement.phaseDown = true;
+            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && enableMovement)
+            {
+                if (oneWayPlatform)
+                    queuedMovement.phaseDown = true;
+                else
+                    queuedMovement.moveDown = true;
+            }
+
             if ((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow)) && enableMovement)
                 queuedMovement.jump = true;
             if ((Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.UpArrow)) && enableMovement)
@@ -234,6 +252,13 @@ public class PlayerController : MonoBehaviour
     {
         bool wantsToHold = queuedMovement.hold;
         bool wantsToJump = queuedMovement.jump;
+        if (isLadder && (wantsToJump || wantsToHold))
+        {
+            isClimbing = true;
+            HandleClimb();
+            return;
+        }
+
         if (isGrounded)
         {
             if (rigidBody.linearVelocity.y <= 0.1f)
@@ -292,6 +317,27 @@ public class PlayerController : MonoBehaviour
         rigidBody.linearVelocityY = (float)(currentJumpForce * Math.Pow(jumpHoldFalloffExp, jumpHoldFrames));
     }
 
+    private void HandleClimb()
+    {
+        bool wantsUp = queuedMovement.hold || queuedMovement.jump;
+        bool wantsDown = queuedMovement.moveDown;
+        if (wantsUp)
+        {
+            rigidBody.gravityScale = 0;
+            rigidBody.linearVelocity = new Vector2(rigidBody.linearVelocityX, moveSpeed);
+        }
+        
+        if (wantsDown)
+        {
+            rigidBody.gravityScale = 0;
+            rigidBody.linearVelocity = new Vector2(rigidBody.linearVelocityX, -moveSpeed);
+        }
+        
+        if (!wantsUp && !wantsDown)
+        {
+            rigidBody.gravityScale = 1;
+        }
+    }
 
     private void CycleGroundedState()
     {
@@ -327,7 +373,8 @@ public class PlayerController : MonoBehaviour
                 grapplePoint = hit.point;
                 grapplePoint.z = 0;
                 graplingHook.transform.position = grapplePoint;
-                graplingHook.transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(grapplePoint.y - transform.position.y,
+                graplingHook.transform.rotation = Quaternion.AngleAxis(Mathf.Atan2(
+                    grapplePoint.y - transform.position.y,
                     grapplePoint.x - transform.position.x) * Mathf.Rad2Deg - 90, Vector3.forward);
                 graplingHook.SetActive(true);
 
@@ -382,6 +429,13 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        if (other.CompareTag("Ladder"))
+        {
+            isLadder = false;
+            isClimbing = false;
+            rigidBody.gravityScale = 1;
+        }
+
         if (other.gameObject == grappleInstructionsTrigger)
         {
             HideGrappleInstructions();
@@ -397,9 +451,13 @@ public class PlayerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D col)
     {
+        if (col.CompareTag("Ladder"))
+        {
+            isLadder = true;
+        }
+
         if (col.gameObject == grappleInstructionsTrigger)
             grappleInstructionsState = GrappleInstructionsEnum.Inside;
-
 
         if (col.CompareTag("MovingPlatform"))
         {
