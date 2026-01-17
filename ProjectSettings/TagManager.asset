@@ -13,6 +13,8 @@ TagManager:
   - MovingPlatform
   - Killzone
   - OneWayPlatform
+  - PlatformGrid
+  - Grappa
   layers:
   - Default
   - TransparentFX
