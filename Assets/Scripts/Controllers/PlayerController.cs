@@ -96,6 +96,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip deathSound;
     [SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip bonusSound;
+    [SerializeField] private AudioClip carrotSound;
 
     private GameObject originalParent;
     private QueuedMovementInput queuedMovement = new();
@@ -434,6 +435,17 @@ public class PlayerController : MonoBehaviour
             }
 
             GameManager.instance.AddPoints(2);
+            Destroy(col.gameObject);
+        }
+        
+        if (col.CompareTag("Carrot"))
+        {
+            if (audioSource != null && carrotSound != null)
+            {
+                audioSource.pitch = 1f;
+                audioSource.PlayOneShot(carrotSound, AudioListener.volume);
+            }
+
             Destroy(col.gameObject);
         }
 
