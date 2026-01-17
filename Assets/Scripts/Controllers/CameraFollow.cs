@@ -9,9 +9,11 @@ namespace UnityStandardAssets._2D
         public float yMargin = 1f;
         public float xSmooth = 8f;
         public float ySmooth = 8f;
+        public float zoomSmooth = 5f;
+        public float zoomDefault = 1.0f;
         public Vector2 maxXAndY;
         public Vector2 minXAndY;
-
+        
         [Header("Camera settings")] public bool enableLimits = true;
         public bool enableSmoothing = true;
         [Header("Look Ahead Settings")] public float lookAheadX = 1.5f;
@@ -22,9 +24,8 @@ namespace UnityStandardAssets._2D
         private PlayerController mPlayerCtrl;
         private Transform mCurrentTarget;
         private Vector3 currentShakeOffset = Vector3.zero;
-
         private Camera mCamera;
-        private float lastZoom = 1.0f;
+        public float mTargetZoom;
 
         private void Awake()
         {
@@ -33,6 +34,7 @@ namespace UnityStandardAssets._2D
             mPlayerBody = playerObj.GetComponent<Rigidbody2D>();
             mPlayerCtrl = playerObj.GetComponent<PlayerController>();
             mCamera = GetComponent<Camera>();
+            mTargetZoom = zoomDefault;
         }
 
         private void Start()
@@ -53,7 +55,6 @@ namespace UnityStandardAssets._2D
         {
             float elapsed = 0f;
             float intensity = GameManager.ShakeIntensity;
-            Debug.Log(intensity);
             float multiplier = 0.08f; 
 
             while (elapsed < duration)
@@ -82,18 +83,30 @@ namespace UnityStandardAssets._2D
 
         public void SetTempZoom(float zoom)
         {
-            lastZoom = mCamera.orthographicSize;
-            mCamera.orthographicSize = zoom;
+            mTargetZoom = zoom;
         }
 
         public void ResetTempZoom()
         {
-            mCamera.orthographicSize = lastZoom;
+            mTargetZoom = zoomDefault;
         }
 
         private void Update()
         {
+            HandleZoom();
             TrackTransform(mCurrentTarget);
+        }
+        
+        private void HandleZoom()
+        {
+            if (Mathf.Abs(mCamera.orthographicSize - mTargetZoom) > 0.01f)
+            {
+                mCamera.orthographicSize = Mathf.Lerp(
+                    mCamera.orthographicSize, 
+                    mTargetZoom, 
+                    zoomSmooth * Time.unscaledDeltaTime
+                );
+            }
         }
 
         private void TrackTransform(Transform targetTransform)
