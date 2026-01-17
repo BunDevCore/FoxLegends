@@ -17,7 +17,6 @@ public class PlatformGeneratorController : MonoBehaviour
 
         public int currentWaypointIndex;
 
-        // public Vector2 moveDirection;
         public float elapsedTime = 0;
         public Vector2 velocity;
 
@@ -53,7 +52,7 @@ public class PlatformGeneratorController : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update()
+    private void FixedUpdate()
     {
         UpdateRadialProgressCircle();
         for (int i = platforms.Count - 1; i >= 0; i--)

@@ -30,7 +30,7 @@ public class MovingPlatformController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         elapsedTime += Time.deltaTime;
         float dist = Vector2.Distance(
