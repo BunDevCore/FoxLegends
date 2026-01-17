@@ -130,7 +130,6 @@ MonoBehaviour:
   maxBounceVelocity: 3
   enemyBounceVelocity: 2
   explosionPrefab: {fileID: 5824389032076557700, guid: cb0441dad8cb11d49be117ade19a3428, type: 3}
-  mCameraFollow: {fileID: 0}
   deathSound: {fileID: 8300000, guid: 929cfdb0ef8da2e499274e06cc23f097, type: 3}
 --- !u!114 &1547982242261962577
 MonoBehaviour:
@@ -144,7 +143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22c203fd37d41e9a4303714c098089f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 0.5
+  moveSpeed: 2
   maxStep: 0.5
   maxMovementArea: 1
   minWaitTime: 1

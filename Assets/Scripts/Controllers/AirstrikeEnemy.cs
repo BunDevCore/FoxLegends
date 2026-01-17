@@ -28,6 +28,9 @@ public class AirstrikeEnemy : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        rb.useFullKinematicContacts = true;
         startPosition = transform.position;
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null) playerTransform = player.transform;
@@ -43,7 +46,7 @@ public class AirstrikeEnemy : MonoBehaviour
     {
         while (shouldMove)
         {
-            yield return new WaitForSeconds(bombTimer);
+            yield return new WaitForSeconds(Random.Range(bombTimer-0.25f, bombTimer+0.25f));
             if (bombPrefab)
                 Instantiate(bombPrefab, transform.position, Quaternion.identity);
         }
@@ -54,10 +57,10 @@ public class AirstrikeEnemy : MonoBehaviour
         while (shouldMove)
         {
             yield return new WaitForSeconds(Random.Range(minWaitTime, maxWaitTime));
-            if (playerTransform == null) continue;
+            if (!playerTransform) continue;
             float distanceToPlayer = Mathf.Abs(playerTransform.position.x - transform.position.x);
             float targetX;
-            if (distanceToPlayer < 0.1f)
+            if (distanceToPlayer < 0.5f)
             {
                 float randomDir = Random.value > 0.5f ? 1f : -1f;
                 targetX = transform.position.x + (randomDir * maxStep);
@@ -68,39 +71,35 @@ public class AirstrikeEnemy : MonoBehaviour
             targetX = Mathf.Clamp(targetX, startPosition.x - maxMovementArea, startPosition.x + maxMovementArea);
             targetX = Mathf.Clamp(targetX, transform.position.x - maxStep, transform.position.x + maxStep);
 
-            yield return StartCoroutine(LerpToX(targetX));
+            yield return StartCoroutine(MoveToX(targetX));
         }
     }
 
-    IEnumerator LerpToX(float targetX)
+    IEnumerator MoveToX(float targetX)
     {
-        Vector2 startPos = rb.position;
-        Vector2 endPos = new Vector2(targetX, rb.position.y);
-
-        float distance = Mathf.Abs(startPos.x - targetX);
-        if (distance < 0.05f) yield break;
-
-        float duration = distance / moveSpeed;
-        float elapsed = 0f;
-
         if (targetX > transform.position.x && isFacingRight) Flip();
         else if (targetX < transform.position.x && !isFacingRight) Flip();
 
-        while (elapsed < duration)
+        while (Mathf.Abs(rb.position.x - targetX) > 0.01f)
         {
-            if (DialogueManager.instance != null && DialogueManager.instance.IsActive)
+            if (!shouldMove) yield break;
+
+            if (DialogueManager.instance && DialogueManager.instance.IsActive)
             {
+                rb.linearVelocity = Vector2.zero;
                 yield return null;
                 continue;
             }
 
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            rb.MovePosition(Vector2.Lerp(startPos, endPos, t));
+            Vector2 newPos = Vector2.MoveTowards(
+                rb.position, 
+                new Vector2(targetX, rb.position.y), 
+                moveSpeed * Time.deltaTime
+            );
+
+            rb.MovePosition(newPos);
             yield return null;
         }
-
-        rb.MovePosition(endPos);
     }
 
     void Flip()

@@ -11,7 +11,7 @@ public class EnemyController : MonoBehaviour
     [Header("Explosion Prefab")]
     [SerializeField] private GameObject explosionPrefab;
     private Animator animator;
-    [SerializeField] private CameraFollow mCameraFollow;
+    private CameraFollow mCameraFollow;
     
     [Header("Audio Settings")]
     private AudioSource audioSource;
@@ -30,6 +30,7 @@ public class EnemyController : MonoBehaviour
     {
         animator.enabled = false;
         box.enabled = false;
+        rb.bodyType = RigidbodyType2D.Dynamic;
         rb.constraints = RigidbodyConstraints2D.FreezePositionX;
         rb.linearVelocity = Vector2.zero;
         if (explosionPrefab != null)
