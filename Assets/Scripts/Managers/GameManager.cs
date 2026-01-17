@@ -209,6 +209,7 @@ public class GameManager : MonoBehaviour
     public void InGame()
     {
         // cursorManager.HideAndResetCursor();
+        cursorManager.ResetCursor();
         SetGameState(GameState.GAME);
         if (!DialogueManager.instance || !DialogueManager.instance.IsActive)
             Time.timeScale = 1;
