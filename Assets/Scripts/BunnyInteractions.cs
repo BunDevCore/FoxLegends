@@ -52,7 +52,7 @@ public class BunnyInteractions : MonoBehaviour
                 DialogueManager.instance.TriggerDialogue("TwoCarrots");
                 break;
             case 3:
-                DialogueManager.instance.TriggerDialogue("AllCarrots", () => {EndController.instance.LevelComplete();});
+                DialogueManager.instance.TriggerDialogue("AllCarrots", () => {GameManager.instance.LevelComplete();});
                 break;
         }
     }

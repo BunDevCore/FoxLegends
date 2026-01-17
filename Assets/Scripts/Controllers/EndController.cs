@@ -31,7 +31,6 @@ public class EndController : MonoBehaviour
 
     public void LevelComplete()
     {
-        GameManager.instance.LevelComplete();
         timeText.text = GameManager.instance.timerText.text;
         pointsText.text = GameManager.instance.pointsText.text;
         int score = Math.Max(0,

@@ -28,6 +28,20 @@ public class MainMenuManager : MonoBehaviour
         shakeSlider.onValueChanged.AddListener(v => ShakeIntensity = v);
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (settingsCanvas.enabled)
+                OnSettingsBackClicked();
+        }
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Space))
+        {
+            if (mainMenuCanvas.enabled)
+                OnStartButtonPressed();
+        }
+    }
+
     public void OnStartButtonPressed() => SceneManager.LoadScene("Level1");
 
     public void OnSettingsClicked()
