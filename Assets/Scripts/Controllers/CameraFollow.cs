@@ -23,12 +23,16 @@ namespace UnityStandardAssets._2D
         private Transform mCurrentTarget;
         private Vector3 currentShakeOffset = Vector3.zero;
 
+        private Camera mCamera;
+        private float lastZoom = 1.0f;
+
         private void Awake()
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             mPlayer = playerObj.transform;
             mPlayerBody = playerObj.GetComponent<Rigidbody2D>();
             mPlayerCtrl = playerObj.GetComponent<PlayerController>();
+            mCamera = GetComponent<Camera>();
         }
 
         private void Start()
@@ -74,6 +78,17 @@ namespace UnityStandardAssets._2D
         {
             mCurrentTarget = mPlayer;
             enableLimits = true;
+        }
+
+        public void SetTempZoom(float zoom)
+        {
+            lastZoom = mCamera.orthographicSize;
+            mCamera.orthographicSize = zoom;
+        }
+
+        public void ResetTempZoom()
+        {
+            mCamera.orthographicSize = lastZoom;
         }
 
         private void Update()

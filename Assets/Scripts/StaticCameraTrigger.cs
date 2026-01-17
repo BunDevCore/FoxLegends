@@ -8,6 +8,7 @@ namespace DefaultNamespace
         [Header("Zmień kolizję na teren na który ma to działać, potem")]
         [Header("Edytuj obiekt (Transform), na który kamera ma wskazywać.\nJeśli nie ma to stwórz, najlepiej jakby był jako dziecko tego elementu")]
         public Transform focusPoint;
+        public float zoom = 1.0f;
 
         [Tooltip("Czy ma triggerować na wejście z boxa")]
         public bool enter = true;
@@ -29,18 +30,20 @@ namespace DefaultNamespace
         private void OnTriggerEnter2D(Collider2D other)
         {
             // Sprawdź, czy to Gracz wszedł w strefę
-            if (other.CompareTag("Player") && !enter)
+            if (other.CompareTag("Player") && enter)
             {
                 mCameraFollow.SetPlace(focusPoint);
+                mCameraFollow.SetTempZoom(zoom);
             }
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
             // Kiedy gracz wychodzi, kamera wraca do śledzenia gracza
-            if (other.CompareTag("Player") && !exit)
+            if (other.CompareTag("Player") && exit)
             {
                 mCameraFollow.ResetPlace();
+                mCameraFollow.ResetTempZoom();
             }
         }
     }
